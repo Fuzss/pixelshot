@@ -1,5 +1,6 @@
 package fuzs.pixelshot.config;
 
+import fuzs.pixelshot.handler.OrthoViewHandlerV2;
 import fuzs.puzzleslib.api.config.v3.Config;
 import fuzs.puzzleslib.api.config.v3.ConfigCore;
 
@@ -12,10 +13,10 @@ public class ClientConfig implements ConfigCore {
 	public boolean hideHudForHugeScreenshots = true;
 	@Config(category = "orthographic_camera", description = "Preset rotation in degrees when opening the orthographic camera for the horizontal axis.")
 	@Config.IntRange(min = 0, max = 360)
-    public int defaultRotationX = 30;
+    public int defaultXRotation = OrthoViewHandlerV2.X_ROT_DEFAULT;
 	@Config(category = "orthographic_camera", description = "Preset rotation in degrees when opening the orthographic camera for the vertical axis.")
 	@Config.IntRange(min = 0, max = 360)
-    public int defaultRotationY = 315;
+    public int defaultYRotation = OrthoViewHandlerV2.Y_ROT_DEFAULT;
 	@Config(name = "hide_hud", category = "orthographic_camera", description = "Hide the in-game gui in orthographic camera mode, similar to Minecraft's F1 mode.")
 	public boolean hideHudForOrthographicCamera = true;
 	@Config(category = "orthographic_camera", description = "Hide the clouds in orthographic camera mode.")

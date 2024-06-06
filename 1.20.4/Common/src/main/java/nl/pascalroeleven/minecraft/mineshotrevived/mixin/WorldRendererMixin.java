@@ -18,7 +18,7 @@ import nl.pascalroeleven.minecraft.mineshotrevived.Mineshot;
 public class WorldRendererMixin {
 	@ModifyVariable(method = "renderLevel", at = @At("HEAD"))
 	private Matrix4f onRender(Matrix4f matrix4f, PoseStack matrices, float tickDelta) {
-		Matrix4f newMatrix4f = Mineshot.getOrthoViewHandler().onWorldRenderer(tickDelta);
+		Matrix4f newMatrix4f = Mineshot.getOrthoViewHandler().onWorldRenderer(null, tickDelta);
 
 		if (newMatrix4f == null) {
 			return matrix4f;
@@ -40,7 +40,7 @@ public class WorldRendererMixin {
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V"))
 	private void onRenderClear(CallbackInfo ci) {
-		int background = Mineshot.getOrthoViewHandler().getBackground();
+		int background = Mineshot.getOrthoViewHandler().getRenderSky();
 		if (background == 1) {
 			RenderSystem.setShaderFogColor(0, 0, 0, 0);
 			RenderSystem.clearColor(1.0f, 0, 0, 1.0f);
@@ -52,19 +52,19 @@ public class WorldRendererMixin {
 
 	@Inject(method = "renderSky(Lnet/minecraft/client/render/BufferBuilder;F)Lnet/minecraft/client/render/BufferBuilder$BuiltBuffer;", at = @At("HEAD"), cancellable = true)
 	private static void onRenderSky(CallbackInfoReturnable<BufferBuilder.RenderedBuffer> ci) {
-		if (Mineshot.getOrthoViewHandler().getBackground() != 0)
+		if (Mineshot.getOrthoViewHandler().getRenderSky() != 0)
 			ci.cancel();
 	}
 
 	@Inject(method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V", at = @At("HEAD"), cancellable = true)
 	private void onRenderSky2(CallbackInfo ci) {
-		if (Mineshot.getOrthoViewHandler().getBackground() != 0)
+		if (Mineshot.getOrthoViewHandler().getRenderSky() != 0)
 			ci.cancel();
 	}
 
 	@Inject(method = "renderClouds*", at = @At("HEAD"), cancellable = true)
 	private void onRenderWeather(CallbackInfo ci) {
-		if (Mineshot.getOrthoViewHandler().getBackground() != 0)
+		if (Mineshot.getOrthoViewHandler().getRenderSky() != 0)
 			ci.cancel();
 	}
 }

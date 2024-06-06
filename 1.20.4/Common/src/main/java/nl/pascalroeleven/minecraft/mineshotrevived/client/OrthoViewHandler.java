@@ -1,17 +1,20 @@
 package nl.pascalroeleven.minecraft.mineshotrevived.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.shaders.FogShape;
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
+import fuzs.puzzleslib.api.event.v1.data.MutableValue;
 import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.material.FogType;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -55,15 +58,16 @@ public class OrthoViewHandler {
 			GLFW_KEY_KP_DECIMAL);
 
 	public boolean enabled;
-	private boolean render360;
-	private boolean frustumUpdate;
 	private boolean freeCam;
-	private boolean clip;
-	private int background;
+	private boolean clipping;
+	private int renderSky;
 
 	private float zoom;
 	private float xRot;
 	private float yRot;
+	private float oldZoom;
+	private float oldXRot;
+	private float oldYRot;
 
 	private int tick;
 	private int tickPrevious;
@@ -90,15 +94,17 @@ public class OrthoViewHandler {
 		context.registerKeyMapping(keyBackground);
 	}
 
-	// Called by CameraMixin
-	public void onComputeCameraAngles(GameRenderer renderer, Camera camera, float partialTick, MutableFloat pitch, MutableFloat yaw, MutableFloat roll) {
-		if (!this.enabled) {
-			return;
+	public void onRenderFog(GameRenderer gameRenderer, Camera camera, float partialTick, FogRenderer.FogMode fogMode, FogType fogType, MutableFloat fogStart, MutableFloat fogEnd, MutableValue<FogShape> fogShape) {
+		if (this.enabled) {
+			fogStart.accept(Float.MAX_VALUE);
+			fogEnd.accept(Float.MAX_VALUE);
 		}
+	}
 
-		if (!this.freeCam) {
-			pitch.accept(this.xRot);
-			yaw.accept(this.yRot + 180.0F);
+	public void onComputeCameraAngles(GameRenderer renderer, Camera camera, float partialTick, MutableFloat pitch, MutableFloat yaw, MutableFloat roll) {
+		if (this.enabled && !this.freeCam) {
+			pitch.accept(Mth.lerp(partialTick, this.oldXRot, this.xRot));
+			yaw.accept(Mth.lerp(partialTick, this.oldYRot, this.yRot) + 180.0F);
 		}
 	}
 
@@ -109,45 +115,51 @@ public class OrthoViewHandler {
 		}
 
         this.tick++;
+
+		this.oldZoom = this.zoom;
+		this.oldXRot = this.xRot;
+		this.oldYRot = this.yRot;
 	}
 
 	// Called by WorldRendererMixin
-	public Matrix4f onWorldRenderer(float tickDelta) {
+	public Matrix4f onWorldRenderer(Minecraft minecraft, float tickDelta) {
 		if (!this.enabled) {
 			return null;
 		}
 
 		// Update zoom and rotation
-		if (!this.modifierKeyPressed()) {
-			int ticksElapsed = this.tick - this.tickPrevious;
-            double elapsed = ticksElapsed + ((double) tickDelta - this.partialPrevious);
-			elapsed *= SECONDS_PER_TICK * ROTATE_SPEED;
-            this.updateZoomAndRotation(elapsed);
+//		if (!this.modifierKeyPressed()) {
+//			int ticksElapsed = this.tick - this.tickPrevious;
+//            double elapsed = ticksElapsed + ((double) tickDelta - this.partialPrevious);
+//			elapsed *= SECONDS_PER_TICK * ROTATE_SPEED;
+//            this.updateZoomAndRotation(elapsed);
+//
+//            this.tickPrevious = this.tick;
+//            this.partialPrevious = tickDelta;
+//		}
 
-            this.tickPrevious = this.tick;
-            this.partialPrevious = tickDelta;
-		}
+		float zoom = Mth.lerp(tickDelta, this.oldZoom, this.zoom);
 
-		float width = this.zoom * (MC.getWindow().getWidth()
-				/ (float) MC.getWindow().getHeight());
-		float height = this.zoom;
+		float width = zoom * (minecraft.getWindow().getWidth()
+				/ (float) minecraft.getWindow().getHeight());
+		float height = zoom;
 
 		// Override projection matrix
-		Matrix4f matrix4f = new Matrix4f().setOrtho(-width, width, -height, height, this.clip ? 0 : -9999, 9999);
-		RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
+		Matrix4f matrix4f = new Matrix4f().setOrtho(-width, width, -height, height, this.clipping ? 0.0F : -1000.0F, 1000.0F);
+//		RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.DISTANCE_TO_ORIGIN);
 		return matrix4f;
 	}
 
 	// Called by WorldRendererMixin
 	public Matrix4f onSetupFrustum() {
-		if (this.frustumUpdate) {
-			MC.levelRenderer.needsUpdate();
-            this.frustumUpdate = false;
-		}
-
-		if (!this.enabled || !this.render360) {
-			return null;
-		}
+//		if (this.frustumUpdate) {
+//			MC.levelRenderer.needsUpdate();
+//            this.frustumUpdate = false;
+//		}
+//
+//		if (!this.enabled || !this.render360) {
+//			return null;
+//		}
 
 		float width = this.zoom * (MC.getWindow().getWidth()
 				/ (float) MC.getWindow().getHeight());
@@ -155,12 +167,12 @@ public class OrthoViewHandler {
 
 		// Override projection matrix
 		// FIXME: For some reason the client crashes now when clipping too much here.
-        return new Matrix4f().setOrtho(-Math.max(10, width), Math.max(10, width), -Math.max(10, height), Math.max(10, height), -9999, 9999);
+        return new Matrix4f().setOrtho(-width, width, -height, height, -1000.0F, 1000.0F);
 	}
 
-	public int getBackground() {
+	public int getRenderSky() {
 		// TODO disable clouds via game option, but better not, so we don't leave it disabled
-		return this.background;
+		return this.renderSky;
 	}
 
 	// Called by KeyboardMixin
@@ -179,7 +191,7 @@ public class OrthoViewHandler {
 		} else if (!this.enabled) {
 			return;
 		} else if (keyClip.isDown()) {
-            this.clip = !this.clip;
+            this.clipping = !this.clipping;
 		} else if (keyRotateT.isDown()) {
             this.xRot = mod ? -90 : 90;
             this.yRot = 0;
@@ -189,15 +201,12 @@ public class OrthoViewHandler {
 		} else if (keyRotateS.isDown()) {
             this.xRot = 0;
             this.yRot = mod ? 180 : 0;
-		} else if (key360.isDown()) {
-            this.render360 = !this.render360;
-            this.frustumUpdate = true;
 		}
 
 		// Update stepped rotation/zoom controls
 		// Note: the smooth controls are handled in onWorldRenderer, since they need to be
 		// executed on every frame
-		if (mod) {
+		if (true) {
             this.updateZoomAndRotation(1);
 			// Snap values to step units
             this.xRot = Math.round(this.xRot / ROTATE_STEP) * ROTATE_STEP;
@@ -208,12 +217,11 @@ public class OrthoViewHandler {
 
 	private void reset() {
         this.freeCam = false;
-        this.clip = false;
-        this.render360 = false;
+        this.clipping = false;
 
         this.zoom = (float) Math.pow(ZOOM_STEP, 3);
-        this.xRot = Pixelshot.CONFIG.get(ClientConfig.class).defaultRotationX;
-        this.yRot = Pixelshot.CONFIG.get(ClientConfig.class).defaultRotationY;
+        this.xRot = Pixelshot.CONFIG.get(ClientConfig.class).defaultXRotation;
+        this.yRot = Pixelshot.CONFIG.get(ClientConfig.class).defaultYRotation;
         this.tick = 0;
         this.tickPrevious = 0;
         this.partialPrevious = 0;
@@ -240,45 +248,47 @@ public class OrthoViewHandler {
 	}
 
 	private void cycleBackground() {
-		if (this.background == 2) {
-            this.background = 0;
+		if (this.renderSky == 2) {
+            this.renderSky = 0;
 		} else {
-            this.background++;
+            this.renderSky++;
 		}
   }
   
 	private void setZoom(float zoom) {
-        this.zoom = zoom;
-		// Because zooming is not a native game mechanic, it doesn't trigger a terrain
-		// update
-		if (this.render360)
-			MC.levelRenderer.needsUpdate();
+		if (zoom > this.zoom) {
+            MC.levelRenderer.needsUpdate();
+        }
+		this.zoom = zoom;
 	}
 
 	private boolean modifierKeyPressed() {
 		return keyMod.isDown();
 	}
 
-	private void updateZoomAndRotation(double multi) {
+	private void updateZoomAndRotation(double step) {
+
+		step = 1.0;
+
 		if (KEY_ZOOM_IN.isDown()) {
-            this.setZoom((float) Math.max(1E-7, (this.zoom / (1 + ((ZOOM_STEP - 1) * multi)))));
+            this.setZoom((float) Math.max(1E-7, (this.zoom / (1 + ((ZOOM_STEP - 1) * step)))));
 		}
 		if (KEY_ZOOM_OUT.isDown()) {
-            this.setZoom((float) (this.zoom * (1 + ((ZOOM_STEP - 1) * multi))));
+            this.setZoom((float) (this.zoom * (1 + ((ZOOM_STEP - 1) * step))));
 		}
 
-		if (KEY_ROTATE_LEFT.isDown()) {
-            this.yRot += ROTATE_STEP * multi;
+		while (KEY_ROTATE_LEFT.consumeClick()) {
+            this.yRot += ROTATE_STEP * step;
 		}
-		if (KEY_ROTATE_RIGHT.isDown()) {
-            this.yRot -= ROTATE_STEP * multi;
+		while (KEY_ROTATE_RIGHT.consumeClick()) {
+            this.yRot -= ROTATE_STEP * step;
 		}
 
-		if (KEY_ROTATE_UP.isDown()) {
-            this.xRot += ROTATE_STEP * multi;
+		while (KEY_ROTATE_UP.consumeClick()) {
+            this.xRot += ROTATE_STEP * step;
 		}
-		if (KEY_ROTATE_DOWN.isDown()) {
-            this.xRot -= ROTATE_STEP * multi;
+		while (KEY_ROTATE_DOWN.consumeClick()) {
+            this.xRot -= ROTATE_STEP * step;
 		}
 	}
 }
