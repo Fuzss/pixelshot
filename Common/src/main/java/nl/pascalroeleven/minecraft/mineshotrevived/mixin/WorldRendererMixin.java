@@ -8,18 +8,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.LevelRenderer;
 import org.joml.Matrix4f;
 import nl.pascalroeleven.minecraft.mineshotrevived.Mineshot;
 
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public class WorldRendererMixin {
-	@ModifyVariable(method = "render", at = @At("HEAD"))
-	private Matrix4f onRender(Matrix4f matrix4f, MatrixStack matrices, float tickDelta) {
-		Mineshot.getScreenshotHandler().onRenderTick();
+	@ModifyVariable(method = "renderLevel", at = @At("HEAD"))
+	private Matrix4f onRender(Matrix4f matrix4f, PoseStack matrices, float tickDelta) {
 		Matrix4f newMatrix4f = Mineshot.getOrthoViewHandler().onWorldRenderer(tickDelta);
 
 		if (newMatrix4f == null) {
@@ -29,7 +27,7 @@ public class WorldRendererMixin {
 		}
 	}
 
-	@ModifyVariable(method = "setupFrustum", at = @At("HEAD"), argsOnly = true)
+	@ModifyVariable(method = "prepareCullFrustum", at = @At("HEAD"), argsOnly = true)
 	private Matrix4f onSetupFrustum(Matrix4f matrix4f) {
 		Matrix4f newMatrix4f = Mineshot.getOrthoViewHandler().onSetupFrustum();
 
@@ -53,7 +51,7 @@ public class WorldRendererMixin {
 	}
 
 	@Inject(method = "renderSky(Lnet/minecraft/client/render/BufferBuilder;F)Lnet/minecraft/client/render/BufferBuilder$BuiltBuffer;", at = @At("HEAD"), cancellable = true)
-	private static void onRenderSky(CallbackInfoReturnable<BufferBuilder.BuiltBuffer> ci) {
+	private static void onRenderSky(CallbackInfoReturnable<BufferBuilder.RenderedBuffer> ci) {
 		if (Mineshot.getOrthoViewHandler().getBackground() != 0)
 			ci.cancel();
 	}
