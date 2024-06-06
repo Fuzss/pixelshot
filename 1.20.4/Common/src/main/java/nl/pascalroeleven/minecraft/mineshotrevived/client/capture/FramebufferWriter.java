@@ -1,15 +1,12 @@
 package nl.pascalroeleven.minecraft.mineshotrevived.client.capture;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
-
-import java.awt.Dimension;
-import java.io.FileNotFoundException;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 public class FramebufferWriter {
 	protected static final int HEADER_SIZE = 18;
@@ -17,22 +14,21 @@ public class FramebufferWriter {
 	protected final FramebufferCapturer fbc;
 	protected final Path file;
 
-	public FramebufferWriter(Path file, FramebufferCapturer fbc)
-			throws FileNotFoundException, IOException {
+	public FramebufferWriter(Path file, FramebufferCapturer fbc) {
 		this.file = file;
 		this.fbc = fbc;
 	}
 
 	public void write() throws IOException {
-		fbc.setFlipColors(true);
-		fbc.setFlipLines(false);
-		fbc.capture();
+        this.fbc.setFlipColors(true);
+        this.fbc.setFlipLines(false);
+        this.fbc.capture();
 
-		Dimension dim = fbc.getCaptureDimension();
-		try (FileChannel fc = FileChannel.open(file, CREATE, WRITE)) {
-			fc.write(buildTargaHeader((int) dim.getWidth(), (int) dim.getHeight(),
-					fbc.getBytesPerPixel() * 8));
-			fc.write(fbc.getByteBuffer());
+		Dimension dim = this.fbc.getCaptureDimension();
+		try (FileChannel fc = FileChannel.open(this.file, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+			fc.write(this.buildTargaHeader((int) dim.getWidth(), (int) dim.getHeight(), this.fbc.getBytesPerPixel() * 8));
+			fc.write(this.fbc.getByteBuffer());
+//			STBImageWrite.stbi_write_tga_to_func()
 		}
 	}
 

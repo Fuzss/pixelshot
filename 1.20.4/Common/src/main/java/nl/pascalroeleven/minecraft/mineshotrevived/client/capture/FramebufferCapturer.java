@@ -11,29 +11,28 @@ import static org.lwjgl.opengl.GL11.glPixelStorei;
 import static org.lwjgl.opengl.GL11.glReadPixels;
 import static org.lwjgl.opengl.GL12.GL_BGR;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import java.awt.Dimension;
 import java.nio.ByteBuffer;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.Minecraft;
 
 public class FramebufferCapturer {
 	private static final int BPP = 3;
 	private static final int TYPE = GL_UNSIGNED_BYTE;
-	private static final MinecraftClient MC = MinecraftClient.getInstance();
+	private static final Minecraft MC = Minecraft.getInstance();
 
 	private final ByteBuffer bb;
 	private final Dimension dim;
 	private final byte[] line1;
 	private final byte[] line2;
-	private boolean flipColors = false;
+	private boolean flipColors = true;
 	private boolean flipLines = false;
 
 	public FramebufferCapturer() {
 		dim = getCurrentDimension();
 		bb = ByteBuffer.allocateDirect((int) (dim.getWidth() * dim.getHeight() * BPP));
-		line1 = new byte[MC.getWindow().getFramebufferWidth() * BPP];
-		line2 = new byte[MC.getWindow().getFramebufferWidth() * BPP];
+		line1 = new byte[MC.getWindow().getWidth() * BPP];
+		line2 = new byte[MC.getWindow().getWidth() * BPP];
 	}
 
 	public void setFlipColors(boolean flipColors) {
@@ -80,15 +79,15 @@ public class FramebufferCapturer {
 
 		int format = flipColors ? GL_BGR : GL_RGB;
 
-		Framebuffer fb = MC.getFramebuffer();
+		RenderTarget fb = MC.getMainRenderTarget();
 
 		// Read texture from framebuffer if enabled, otherwise use slower glReadPixels
-		if (fb.fbo >= 0) {
-			glBindTexture(GL_TEXTURE_2D, fb.getColorAttachment());
+		if (fb.frameBufferId >= 0) {
+			glBindTexture(GL_TEXTURE_2D, fb.getColorTextureId());
 			glGetTexImage(GL_TEXTURE_2D, 0, format, TYPE, bb);
 		} else {
-			glReadPixels(0, 0, MC.getWindow().getFramebufferWidth(),
-					MC.getWindow().getFramebufferHeight(), format, TYPE, bb);
+			glReadPixels(0, 0, MC.getWindow().getWidth(),
+					MC.getWindow().getHeight(), format, TYPE, bb);
 		}
 
 		if (!flipLines) {
@@ -96,10 +95,10 @@ public class FramebufferCapturer {
 		}
 
 		// flip buffer vertically
-		for (int i = 0; i < MC.getWindow().getFramebufferHeight() / 2; i++) {
-			int ofs1 = i * MC.getWindow().getFramebufferWidth() * BPP;
-			int ofs2 = (MC.getWindow().getFramebufferHeight() - i - 1)
-					* MC.getWindow().getFramebufferWidth() * BPP;
+		for (int i = 0; i < MC.getWindow().getHeight() / 2; i++) {
+			int ofs1 = i * MC.getWindow().getWidth() * BPP;
+			int ofs2 = (MC.getWindow().getHeight() - i - 1)
+					* MC.getWindow().getWidth() * BPP;
 
 			// read lines
 			bb.position(ofs1);
@@ -116,7 +115,7 @@ public class FramebufferCapturer {
 	}
 
 	private Dimension getCurrentDimension() {
-		return new Dimension(MC.getWindow().getFramebufferWidth(),
-				MC.getWindow().getFramebufferHeight());
+		return new Dimension(MC.getWindow().getWidth(),
+				MC.getWindow().getHeight());
 	}
 }
