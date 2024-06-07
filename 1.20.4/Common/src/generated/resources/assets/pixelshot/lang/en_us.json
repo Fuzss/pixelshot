@@ -1,0 +1,15 @@
+{
+  "key.categories.pixelshot": "Pixelshot",
+  "key.open_menu": "Camera Configuration",
+  "key.orthographic_camera": "Orthographic Camera",
+  "key.rotate_down": "Rotate Camera Down",
+  "key.rotate_left": "Rotate Camera Left",
+  "key.rotate_right": "Rotate Camera Right",
+  "key.rotate_up": "Rotate Camera Up",
+  "key.switch_preset": "Switch Camera Preset",
+  "key.zoom_in": "Zoom Camera In",
+  "key.zoom_out": "Zoom Camera Out",
+  "pixelshot.x_rot": "X-Rotation: %s",
+  "pixelshot.y_rot": "Y-Rotation: %s",
+  "pixelshot.zoom": "Zoom: %s"
+}
