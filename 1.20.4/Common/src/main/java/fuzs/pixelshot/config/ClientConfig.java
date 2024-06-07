@@ -1,6 +1,6 @@
 package fuzs.pixelshot.config;
 
-import fuzs.pixelshot.handler.OrthoViewHandler;
+import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.config.v3.Config;
 import fuzs.puzzleslib.api.config.v3.ConfigCore;
 

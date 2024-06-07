@@ -1,7 +1,7 @@
 package fuzs.pixelshot.client;
 
-import fuzs.pixelshot.handler.OrthoOverlayHandler;
-import fuzs.pixelshot.handler.OrthoViewHandler;
+import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
+import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;

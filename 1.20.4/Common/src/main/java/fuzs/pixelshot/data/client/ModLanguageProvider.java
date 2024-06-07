@@ -1,7 +1,7 @@
 package fuzs.pixelshot.data.client;
 
 import fuzs.pixelshot.Pixelshot;
-import fuzs.pixelshot.handler.OrthoViewHandler;
+import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
 

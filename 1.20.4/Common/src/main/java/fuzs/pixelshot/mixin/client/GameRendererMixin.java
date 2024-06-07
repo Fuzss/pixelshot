@@ -3,7 +3,7 @@ package fuzs.pixelshot.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import fuzs.pixelshot.handler.OrthoViewHandler;
+import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.joml.Matrix4f;
