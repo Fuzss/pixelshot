@@ -3,7 +3,7 @@ package fuzs.pixelshot.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import fuzs.pixelshot.handler.OrthoViewHandlerV2;
+import fuzs.pixelshot.handler.OrthoViewHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.joml.Matrix4f;
@@ -22,8 +22,8 @@ abstract class GameRendererMixin {
 
     @ModifyVariable(method = "renderLevel", at = @At("STORE"), ordinal = 0)
     public Matrix4f renderLevel$0(Matrix4f matrix4f, float partialTicks, long finishTimeNano, PoseStack poseStack) {
-        if (OrthoViewHandlerV2.getInstance().isActive()) {
-            return OrthoViewHandlerV2.getInstance().getProjectionMatrix(this.minecraft, partialTicks, false);
+        if (OrthoViewHandler.INSTANCE.isActive()) {
+            return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft, partialTicks, false);
         } else {
             return matrix4f;
         }
@@ -43,8 +43,8 @@ abstract class GameRendererMixin {
             )
     )
     public Matrix4f renderLevel$1(GameRenderer gameRenderer, double fov, Operation<Matrix4f> operation) {
-        if (OrthoViewHandlerV2.getInstance().isActive()) {
-            return OrthoViewHandlerV2.getInstance().getProjectionMatrix(this.minecraft, 1.0F, true);
+        if (OrthoViewHandler.INSTANCE.isActive()) {
+            return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft, 1.0F, true);
         } else {
             return operation.call(gameRenderer, fov);
         }
