@@ -1,10 +1,12 @@
-package fuzs.pixelshot.handler;
+package fuzs.pixelshot.client.handler;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.shaders.FogShape;
 import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.client.helper.DirectionHelper;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
+import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
 import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
@@ -18,13 +20,11 @@ import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.core.Direction;
 import net.minecraft.network.Connection;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 public class OrthoViewHandler {
     public static final OrthoViewHandler INSTANCE = new OrthoViewHandler();
@@ -33,7 +33,7 @@ public class OrthoViewHandler {
     public static final float ZOOM_MIN = 0.1F;
     public static final float ZOOM_MAX = 500.0F;
     public static final int X_ROT_DEFAULT = 30;
-    public static final int Y_ROT_DEFAULT = 315;
+    public static final int Y_ROT_DEFAULT = 135;
     private static final float CLIPPING_DISTANCE = 1000.0F;
     private static final float ROTATION_STEP_MIN = 8.0F;
     private static final float ROTATION_STEP_MAX = 24.0F;
@@ -84,15 +84,15 @@ public class OrthoViewHandler {
     private CameraType tmpCameraType;
 
     public static void onRegisterKeyMappings(KeyMappingsContext context) {
-        context.registerKeyMapping(KEY_TOGGLE_VIEW);
-        context.registerKeyMapping(KEY_OPEN_MENU);
-        context.registerKeyMapping(KEY_ZOOM_IN);
-        context.registerKeyMapping(KEY_ZOOM_OUT);
-        context.registerKeyMapping(KEY_ROTATE_LEFT);
-        context.registerKeyMapping(KEY_ROTATE_RIGHT);
-        context.registerKeyMapping(KEY_ROTATE_UP);
-        context.registerKeyMapping(KEY_ROTATE_DOWN);
-        context.registerKeyMapping(KEY_SWITCH_PRESET);
+        context.registerKeyMapping(KEY_TOGGLE_VIEW, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_OPEN_MENU, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ZOOM_IN, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ZOOM_OUT, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_LEFT, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_RIGHT, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_UP, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_DOWN, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_SWITCH_PRESET, KeyActivationContext.GAME);
     }
 
     public void onComputeFieldOfView(GameRenderer renderer, Camera camera, float partialTick, MutableDouble fieldOfView) {
@@ -110,45 +110,26 @@ public class OrthoViewHandler {
         }
         if (this.oldXRot != this.xRot) {
             OrthoOverlayHandler.INSTANCE.setXRotOverlay(this.xRot, this.oldXRot);
-        } else {
-//            this.setXRot(Mth.wrapDegrees(this.xRot));
         }
         if (this.oldYRot != this.yRot) {
             OrthoOverlayHandler.INSTANCE.setYRotOverlay(this.yRot, this.oldYRot);
-        } else {
-//            this.setYRot(Mth.wrapDegrees(this.yRot));
         }
 
+        // do not fix up rotation values (like Mth::wrapDegrees), it will mess with the presets which require value identity
         this.setOldValues();
 
         while (KEY_TOGGLE_VIEW.consumeClick()) {
             this.isActive = !this.isActive;
-            if (this.isActive && Screen.hasAltDown()) {
-                this.reloadCameraSettings();
+            if (this.isActive && Screen.hasControlDown()) {
+                this.reloadCameraSettings(this.isActive);
             }
         }
-
         while (KEY_SWITCH_PRESET.consumeClick()) {
-            if (this.isActive) {
-
+            if (this.isActive && !this.followPlayerView) {
+                Vector3f vector3f = DirectionHelper.cycle(this.xRot, this.yRot, !Screen.hasControlDown());
+                this.setXRot(vector3f.x());
+                this.setYRot(vector3f.z());
             }
-
-//            Vector3f vector3f = DirectionHelper.cycle(this.xRot, this.yRot, !Screen.hasControlDown());
-            Vector3f directionVector = DirectionHelper.getDirectionVector((this.xRot / 180.0F) * Mth.PI, (this.yRot / 180.0F) * Mth.PI);
-            int maxComponent = directionVector.absolute(new Vector3f()).maxComponent();
-            Vector3i vector3i = new Vector3i().setComponent(maxComponent, (int) Math.signum(directionVector.get(maxComponent)));
-            Direction direction = Direction.fromDelta(vector3i.x(), vector3i.y(), vector3i.z());
-            Vector3f angles = DirectionHelper.getAngles(direction);
-            if (angles.x() == xRot && angles.z() == yRot) {
-                direction = !Screen.hasControlDown() ? DirectionHelper.cycleForward(direction) : DirectionHelper.cycleBackward(direction);
-            }
-
-            Vector3f vector3f = DirectionHelper.getAngles(direction);
-            this.setXRot(vector3f.x());
-            this.setYRot(vector3f.z());
-
-
-            Pixelshot.LOGGER.info("Vector for x {}, y {}, is direction {}, x {}, y {}, z {}", this.xRot, this.yRot, direction, directionVector.x, directionVector.y, directionVector.z);
         }
         while (KEY_OPEN_MENU.consumeClick()) {
             // TODO implement screen
@@ -162,12 +143,16 @@ public class OrthoViewHandler {
 
     private void updateZoomAndRotation() {
 
+        if (!this.isActive) return;
+
         if (KEY_ZOOM_IN.isDown()) {
             this.setZoom(this.zoom / (1.0F + ZOOM_STEP * STEP_MULTIPLIER));
         }
         if (KEY_ZOOM_OUT.isDown()) {
             this.setZoom(this.zoom * (1.0F + ZOOM_STEP * STEP_MULTIPLIER));
         }
+
+        if (this.followPlayerView) return;
 
         float rotationStep = Mth.clamp(this.zoom, ROTATION_STEP_MIN, ROTATION_STEP_MAX) * STEP_MULTIPLIER;
 
@@ -214,15 +199,15 @@ public class OrthoViewHandler {
             pitch.accept(this.getXRot(partialTick));
             yaw.accept(this.getYRot(partialTick));
         }
-//        Pixelshot.LOGGER.info("pitch {}, yaw {}", pitch.getAsFloat(), yaw.getAsFloat());
     }
 
     public void onLoggedIn(LocalPlayer player, MultiPlayerGameMode multiPlayerGameMode, Connection connection) {
-        this.reloadCameraSettings();
+        this.reloadCameraSettings(false);
     }
 
-    public void reloadCameraSettings() {
-        this.isActive = this.followPlayerView = this.nearClipping = this.renderSky = false;
+    public void reloadCameraSettings(boolean isActive) {
+        this.isActive = isActive;
+        this.followPlayerView = this.nearClipping = this.renderSky = false;
         this.renderPlayerEntity = true;
         this.setZoom(ZOOM_DEFAULT);
         this.setXRot(Pixelshot.CONFIG.get(ClientConfig.class).defaultXRotation);
@@ -238,6 +223,10 @@ public class OrthoViewHandler {
 
     public boolean isActive() {
         return this.isActive;
+    }
+
+    public boolean followPlayerView() {
+        return this.followPlayerView;
     }
 
     public boolean renderPlayerEntity() {
