@@ -1,6 +1,7 @@
 package fuzs.pixelshot.data.client;
 
 import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
@@ -26,5 +27,10 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         builder.add(OrthoViewHandler.KEY_ROTATE_LEFT, "Rotate Camera Left");
         builder.add(OrthoViewHandler.KEY_ROTATE_RIGHT, "Rotate Camera Right");
         builder.add(OrthoViewHandler.KEY_SWITCH_PRESET, "Switch Camera Preset");
+        builder.add(AbstractCameraScreen.COMPONENT_TITLE, "Orthographic Camera");
+        builder.add(AbstractCameraScreen.KEY_FOLLOW_VIEW, "Follow View: %s");
+        builder.add(AbstractCameraScreen.KEY_NEAR_CLIPPING, "Near Clipping: %s");
+        builder.add(AbstractCameraScreen.KEY_RENDER_SKY, "Render Sky: %s");
+        builder.add(AbstractCameraScreen.KEY_RENDER_PLAYER, "Render Player: %s");
     }
 }

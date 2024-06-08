@@ -11,5 +11,10 @@
   "key.zoom_out": "Zoom Camera Out",
   "pixelshot.x_rot": "Pitch: %s",
   "pixelshot.y_rot": "Yaw: %s",
-  "pixelshot.zoom": "Zoom: %s"
+  "pixelshot.zoom": "Zoom: %s",
+  "screen.orthographic_camera.follow_view": "Follow View: %s",
+  "screen.orthographic_camera.near_clipping": "Near Clipping: %s",
+  "screen.orthographic_camera.render_player": "Render Player: %s",
+  "screen.orthographic_camera.render_sky": "Render Sky: %s",
+  "screen.orthographic_camera.title": "Orthographic Camera"
 }

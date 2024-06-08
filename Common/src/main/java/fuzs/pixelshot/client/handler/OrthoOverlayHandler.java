@@ -33,21 +33,23 @@ public class OrthoOverlayHandler {
     }
 
     public void setZoomOverlay(float newValue, float oldValue) {
-        this.overlayTicks = OVERLAY_TIME;
+        this.setOverlayTicks();
         this.zoomColor = this.getOverlayColor(newValue, oldValue);
-        this.xRotColor = this.yRotColor = TEXT_COLOR;
     }
 
     public void setXRotOverlay(float newValue, float oldValue) {
-        this.overlayTicks = OVERLAY_TIME;
+        this.setOverlayTicks();
         this.xRotColor = this.getOverlayColor(newValue, oldValue);
-        this.yRotColor = this.zoomColor = TEXT_COLOR;
     }
 
     public void setYRotOverlay(float newValue, float oldValue) {
-        this.overlayTicks = OVERLAY_TIME;
+        this.setOverlayTicks();
         this.yRotColor = this.getOverlayColor(newValue, oldValue);
-        this.xRotColor = this.zoomColor = TEXT_COLOR;
+    }
+
+    private void setOverlayTicks() {
+        this.overlayTicks = OVERLAY_TIME;
+        this.zoomColor = this.xRotColor = this.yRotColor = TEXT_COLOR;
     }
 
     private ChatFormatting getOverlayColor(float newValue, float oldValue) {

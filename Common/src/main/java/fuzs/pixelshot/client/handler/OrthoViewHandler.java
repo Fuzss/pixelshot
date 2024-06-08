@@ -3,6 +3,7 @@ package fuzs.pixelshot.client.handler;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.shaders.FogShape;
 import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
 import fuzs.pixelshot.client.helper.DirectionHelper;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
@@ -34,7 +35,8 @@ public class OrthoViewHandler {
     public static final float ZOOM_MAX = 500.0F;
     public static final int X_ROT_DEFAULT = 30;
     public static final int Y_ROT_DEFAULT = 135;
-    private static final float CLIPPING_DISTANCE = 1000.0F;
+    private static final float NEAR_CLIPPING_DISTANCE = 10.0F;
+    private static final float FAR_CLIPPING_DISTANCE = 1000.0F;
     private static final float ROTATION_STEP_MIN = 8.0F;
     private static final float ROTATION_STEP_MAX = 24.0F;
     private static final float STEP_MULTIPLIER = 0.25F;
@@ -110,31 +112,34 @@ public class OrthoViewHandler {
         }
         if (this.oldXRot != this.xRot) {
             OrthoOverlayHandler.INSTANCE.setXRotOverlay(this.xRot, this.oldXRot);
+        } else {
+            this.setXRot(Mth.wrapDegrees(this.xRot));
         }
         if (this.oldYRot != this.yRot) {
             OrthoOverlayHandler.INSTANCE.setYRotOverlay(this.yRot, this.oldYRot);
+        } else {
+            this.setYRot(Mth.wrapDegrees(this.yRot));
         }
 
-        // do not fix up rotation values (like Mth::wrapDegrees), it will mess with the presets which require value identity
         this.setOldValues();
 
         while (KEY_TOGGLE_VIEW.consumeClick()) {
-            this.isActive = !this.isActive;
-            if (this.isActive && Screen.hasControlDown()) {
-                this.reloadCameraSettings(this.isActive);
+            if (Screen.hasAltDown()) {
+                this.reloadCameraSettings(true);
+            } else {
+                this.isActive = !this.isActive;
             }
         }
         while (KEY_SWITCH_PRESET.consumeClick()) {
             if (this.isActive && !this.followPlayerView) {
-                Vector3f vector3f = DirectionHelper.cycle(this.xRot, this.yRot, !Screen.hasControlDown());
+                Vector3f vector3f = DirectionHelper.cycle(this.xRot, this.yRot, !Screen.hasAltDown());
                 this.setXRot(vector3f.x());
                 this.setYRot(vector3f.z());
             }
         }
         while (KEY_OPEN_MENU.consumeClick()) {
-            // TODO implement screen
             if (this.isActive) {
-                minecraft.setScreen(null);
+                minecraft.setScreen(AbstractCameraScreen.openScreen());
             }
         }
 
@@ -229,8 +234,32 @@ public class OrthoViewHandler {
         return this.followPlayerView;
     }
 
+    public boolean nearClipping() {
+        return this.nearClipping;
+    }
+
+    public boolean renderSky() {
+        return this.renderSky;
+    }
+
     public boolean renderPlayerEntity() {
         return this.renderPlayerEntity;
+    }
+
+    public void flipFollowPlayerView() {
+        this.followPlayerView = !this.followPlayerView;
+    }
+
+    public void flipNearClipping() {
+        this.nearClipping = !this.nearClipping;
+    }
+
+    public void flipRenderSky() {
+        this.renderSky = !this.renderSky;
+    }
+
+    public void flipRenderPlayerEntity() {
+        this.renderPlayerEntity = !this.renderPlayerEntity;
     }
 
     public void setZoom(float zoom) {
@@ -271,8 +300,7 @@ public class OrthoViewHandler {
                 width,
                 -height,
                 height,
-                !forFrustum && this.nearClipping ? 0.0F : -CLIPPING_DISTANCE,
-                CLIPPING_DISTANCE
+                !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE, FAR_CLIPPING_DISTANCE
         );
     }
 }

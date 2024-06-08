@@ -25,10 +25,11 @@ public class DirectionHelper {
         // SOUTH 0 0 0
         // WEST 0 0 90
         // EAST 0 0 -90
-        return direction.getRotation()
+        Vector3f vector3f = direction.getRotation()
                 .getEulerAnglesXYZ(new Vector3f())
                 .mul(Mth.RAD_TO_DEG)
-                .sub(90.0F, 0.0F, 0.0F)
+                .sub(90.0F, 0.0F, 0.0F);
+        return vector3f.set(Mth.wrapDegrees(vector3f.x()), Mth.wrapDegrees(vector3f.y()), Mth.wrapDegrees(vector3f.z()))
                 .round();
     }
 
