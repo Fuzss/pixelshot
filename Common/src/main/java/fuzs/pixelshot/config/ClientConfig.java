@@ -20,10 +20,6 @@ public class ClientConfig implements ConfigCore {
 		@Config(description = "Default rotation in degrees when opening the orthographic camera for the vertical axis.")
 		@Config.DoubleRange(min = OrthoViewHandler.Y_ROTATION_MIN, max = OrthoViewHandler.Y_ROTATION_MAX)
 		public double initialYRotation = OrthoViewHandler.Y_ROTATION_DEFAULT;
-		@Config(description = "Hide the in-game gui in orthographic camera mode, similar to Minecraft's F1 mode.")
-		public boolean hideHud = true;
-		@Config(description = "Hide the clouds in orthographic camera mode.")
-		public boolean hideClouds = true;
 	}
 	
 	public static class HighResolutionScreenshots implements ConfigCore {

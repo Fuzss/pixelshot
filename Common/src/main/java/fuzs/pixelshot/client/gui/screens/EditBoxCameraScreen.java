@@ -4,10 +4,17 @@ import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+
+import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class EditBoxCameraScreen extends AbstractCameraScreen {
     static final String VALID_NUMBER_PATTERN = "[\\d+\\-.]*";
@@ -20,154 +27,74 @@ public class EditBoxCameraScreen extends AbstractCameraScreen {
     }
 
     @Override
-    protected void init() {
-        super.init();
-
-        int maxWidth = Math.max(this.font.width(COMPONENT_Y_ROT),
-                Math.max(this.font.width(COMPONENT_ZOOM), this.font.width(COMPONENT_X_ROT))
+    void addControlRow(OrthoComponent component, int rowHeight, Collection<AbstractWidget> widgets) {
+        super.addControlRow(component, rowHeight, widgets);
+        Consumer<Float> consumer = (Float value) -> component.consumer.accept(this.handler, value);
+        Supplier<Float> supplier = () -> component.supplier.apply(this.handler);
+        int maxWidth = getMaxComponentWidth(this.font);
+        widgets.add(new StringWidget(this.width / 2 - 154 + 67 - maxWidth / 2,
+                rowHeight + 5,
+                maxWidth,
+                this.font.lineHeight,
+                component.component,
+                this.font
+        ));
+        EditBox editBox = new EditBox(this.font,
+                this.width / 2 - 20,
+                rowHeight,
+                150,
+                20,
+                GameNarrator.NO_TITLE
         );
-        this.addRenderableWidget(new StringWidget(this.width / 2 - 154 + 67 - maxWidth / 2,
-                this.height / 6 + 25,
-                maxWidth,
-                9,
-                COMPONENT_ZOOM,
-                this.font
-        ));
-        this.addRenderableWidget(new StringWidget(this.width / 2 - 154 + 67 - maxWidth / 2,
-                this.height / 6 + 50,
-                maxWidth,
-                9,
-                COMPONENT_X_ROT,
-                this.font
-        ));
-        this.addRenderableWidget(new StringWidget(this.width / 2 - 154 + 67 - maxWidth / 2,
-                this.height / 6 + 75,
-                maxWidth,
-                9,
-                COMPONENT_Y_ROT,
-                this.font
-        ));
+        editBox.setFilter((String string) -> {
+            return string.matches(VALID_NUMBER_PATTERN);
+        });
+        editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(supplier.get())));
+        editBox.setResponder((String string) -> {
+            try {
+                consumer.accept(Float.parseFloat(string));
+            } catch (NumberFormatException ignored) {
+                // NO-OP
+            }
+        });
+        widgets.add(editBox);
+        SpritelessImageButton plusButton = new SpritelessImageButton(this.width / 2 + 134,
+                rowHeight,
+                20,
+                10,
+                0,
+                0,
+                WIDGETS_LOCATION,
+                (Button button) -> {
+                    consumer.accept(supplier.get() + getCurrentIncrement());
+                    editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(supplier.get())));
+                }
+        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+        plusButton.setTooltip(new DynamicTooltip(plusButton, '+'));
+        widgets.add(plusButton);
+        SpritelessImageButton minusButton = new SpritelessImageButton(this.width / 2 + 134,
+                rowHeight + 10,
+                20,
+                10,
+                20,
+                0,
+                WIDGETS_LOCATION,
+                (Button button) -> {
+                    consumer.accept(supplier.get() - getCurrentIncrement());
+                    editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(supplier.get())));
+                }
+        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+        minusButton.setTooltip(new DynamicTooltip(minusButton, '-'));
+        widgets.add(minusButton);
+        widgets.add(this.getResetButton(rowHeight, () -> {
+            consumer.accept(component.getDefaultValue());
+            editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(component.getDefaultValue())));
+        }));
+    }
 
-        EditBox textZoom = this.addRenderableWidget(new EditBox(this.font,
-                this.width / 2 - 20,
-                this.height / 6 + 20,
-                150,
-                20,
-                GameNarrator.NO_TITLE
-        ));
-        EditBox textXRot = this.addRenderableWidget(new EditBox(this.font,
-                this.width / 2 - 20,
-                this.height / 6 + 45,
-                150,
-                20,
-                GameNarrator.NO_TITLE
-        ));
-        EditBox textYRot = this.addRenderableWidget(new EditBox(this.font,
-                this.width / 2 - 20,
-                this.height / 6 + 70,
-                150,
-                20,
-                GameNarrator.NO_TITLE
-        ));
-        textZoom.setFilter(string -> {
-            return string.matches(VALID_NUMBER_PATTERN);
-        });
-        textXRot.setFilter(string -> {
-            return string.matches(VALID_NUMBER_PATTERN);
-        });
-        textYRot.setFilter(string -> {
-            return string.matches(VALID_NUMBER_PATTERN);
-        });
-        textZoom.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getZoom())));
-        textXRot.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getXRot())));
-        textYRot.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getYRot())));
-        textZoom.setResponder(string -> {
-            try {
-                this.handler.setZoom(Float.parseFloat(string));
-            } catch (NumberFormatException ignored) {
-                // NO-OP
-            }
-        });
-        textXRot.setResponder(string -> {
-            try {
-                this.handler.setXRot(Float.parseFloat(string));
-            } catch (NumberFormatException ignored) {
-                // NO-OP
-            }
-        });
-        textYRot.setResponder(string -> {
-            try {
-                this.handler.setYRot(Float.parseFloat(string));
-            } catch (NumberFormatException ignored) {
-                // NO-OP
-            }
-        });
-
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134, this.height / 6 + 20,
-                20,
-                10,
-                0,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setZoom(this.handler.getZoom() + getCurrentIncrement());
-                    textZoom.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getZoom())));
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(positiveTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134, this.height / 6 + 30,
-                20,
-                10,
-                20,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setZoom(this.handler.getZoom() - getCurrentIncrement());
-                    textZoom.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getZoom())));
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(negativeTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134, this.height / 6 + 45,
-                20,
-                10,
-                0,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setXRot(this.handler.getXRot() + getCurrentIncrement());
-                    textXRot.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getXRot())));
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(positiveTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134, this.height / 6 + 55,
-                20,
-                10,
-                20,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setXRot(this.handler.getXRot() - getCurrentIncrement());
-                    textXRot.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getXRot())));
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(negativeTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134, this.height / 6 + 70,
-                20,
-                10,
-                0,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setYRot(this.handler.getYRot() + getCurrentIncrement());
-                    textYRot.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getYRot())));
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(positiveTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134, this.height / 6 + 80,
-                20,
-                10,
-                20,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setYRot(this.handler.getYRot() - getCurrentIncrement());
-                    textYRot.setValue(String.valueOf(OrthoViewHandler.roundValue(this.handler.getYRot())));
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(negativeTooltip());
+    private static int getMaxComponentWidth(Font font) {
+        return Math.max(font.width(COMPONENT_Y_ROT),
+                Math.max(font.width(COMPONENT_ZOOM), font.width(COMPONENT_X_ROT))
+        );
     }
 }

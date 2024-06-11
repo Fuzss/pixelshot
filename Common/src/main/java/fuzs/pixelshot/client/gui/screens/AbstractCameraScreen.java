@@ -1,8 +1,9 @@
 package fuzs.pixelshot.client.gui.screens;
 
-import com.google.common.collect.Sets;
 import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
+import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.CommonComponents;
@@ -19,17 +21,15 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.ToIntFunction;
+import java.util.function.Function;
 
 public abstract class AbstractCameraScreen extends Screen {
-    public static final ToIntFunction<Button> SINGLE_TEXTURE_LAYOUT = (Button button) -> {
-        return 0;
-    };
     static final ResourceLocation WIDGETS_LOCATION = Pixelshot.id("textures/gui/widgets.png");
     static final Component COMPONENT_ON = Component.empty()
             .append(CommonComponents.OPTION_ON)
@@ -50,7 +50,7 @@ public abstract class AbstractCameraScreen extends Screen {
 
     final Type type;
     final OrthoViewHandler handler;
-    boolean focusModeActive;
+    private boolean focusModeActive;
 
     AbstractCameraScreen(Type type, Component title, OrthoViewHandler handler) {
         super(title);
@@ -69,10 +69,13 @@ public abstract class AbstractCameraScreen extends Screen {
         this.addRenderableWidget(Button.builder(Component.literal(">>"), (Button button) -> {
             this.minecraft.setScreen(this.type.cycle().factory.apply(this.getTitle(), this.handler));
         }).bounds(this.width / 2 + 86, this.height / 6 - 20, 50, 20).build()).active = this.type.isLeft;
+
+        Collection<AbstractWidget> rotationWidgets = new ArrayList<>();
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_FOLLOW_VIEW, this.handler.followPlayerView()),
                 (Button button) -> {
                     this.handler.flipFollowPlayerView();
                     button.setMessage(getOptionComponent(KEY_FOLLOW_VIEW, this.handler.followPlayerView()));
+                    rotationWidgets.forEach(abstractWidget -> abstractWidget.active = !this.handler.followPlayerView());
                 }
         ).bounds(this.width / 2 - 154, this.height / 6 + 100, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_NEAR_CLIPPING, this.handler.nearClipping()),
@@ -93,23 +96,53 @@ public abstract class AbstractCameraScreen extends Screen {
             this.handler.flipRenderPlayerEntity();
             button.setMessage(getOptionComponent(KEY_RENDER_PLAYER, this.handler.renderPlayerEntity()));
         }).bounds(this.width / 2 + 4, this.height / 6 + 126, 150, 20).build());
-        for (int i = 0; i < 3; i++) {
-            Set<AbstractWidget> widgets = Sets.newIdentityHashSet();
-            this.addControlRow(this.height / 6 + 20 + i * 25, widgets);
+
+
+        for (int i = 0; i < OrthoComponent.VALUES.length; i++) {
+            OrthoComponent component = OrthoComponent.VALUES[i];
+            Collection<AbstractWidget> widgets = new ArrayList<>();
+            this.addControlRow(component, this.height / 6 + 20 + i * 25, widgets);
             widgets.forEach(this::addRenderableWidget);
+            if (component.disableWhenFollowingPlayerView()) {
+                rotationWidgets.addAll(widgets);
+            }
         }
+        rotationWidgets.forEach(abstractWidget -> abstractWidget.active = !this.handler.followPlayerView());
     }
 
-    void addControlRow(int rowHeight, Collection<AbstractWidget> widgets) {
-        widgets.add(new SpritelessImageButton(this.width / 2 + 158, rowHeight, 20, 20, 4 * 20, 0, WIDGETS_LOCATION, (Button button) -> {
-            this.focusModeActive = !this.focusModeActive;
-            ((SpritelessImageButton) button).xTexStart = (this.focusModeActive ? 5 : 4) * 20;
-            for (GuiEventListener guiEventListener : this.children()) {
-                if (guiEventListener instanceof AbstractWidget abstractWidget && !widgets.contains(abstractWidget)) {
-                    abstractWidget.visible = !this.focusModeActive;
+    void addControlRow(OrthoComponent component, int rowHeight, Collection<AbstractWidget> widgets) {
+        widgets.add(new SpritelessImageButton(this.width / 2 + 182,
+                rowHeight,
+                20,
+                20,
+                4 * 20,
+                0,
+                WIDGETS_LOCATION,
+                (Button button) -> {
+                    this.focusModeActive = !this.focusModeActive;
+                    ((SpritelessImageButton) button).xTexStart = (this.focusModeActive ? 5 : 4) * 20;
+                    for (GuiEventListener guiEventListener : this.children()) {
+                        if (guiEventListener instanceof AbstractWidget abstractWidget &&
+                                !widgets.contains(abstractWidget)) {
+                            abstractWidget.visible = !this.focusModeActive;
+                        }
+                    }
                 }
-            }
-        }).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT));
+        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT));
+    }
+
+    AbstractWidget getResetButton(int rowHeight, Runnable runnable) {
+        return new SpritelessImageButton(this.width / 2 + 158,
+                rowHeight,
+                20,
+                20,
+                6 * 20,
+                0,
+                WIDGETS_LOCATION,
+                (Button button) -> {
+                    runnable.run();
+                }
+        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
     }
 
     static Component getOptionComponent(String translationKey, boolean onOffState) {
@@ -150,24 +183,27 @@ public abstract class AbstractCameraScreen extends Screen {
         }
     }
 
-    static Tooltip positiveTooltip() {
-        return new DynamicTooltip('+');
-    }
-    static Tooltip negativeTooltip() {
-        return new DynamicTooltip('-');
-    }
-
-    private static class DynamicTooltip extends Tooltip {
+    static class DynamicTooltip extends Tooltip {
+        private final AbstractWidget abstractWidget;
         private final char sign;
 
-        DynamicTooltip(char sign) {
+        public DynamicTooltip(AbstractWidget abstractWidget, char sign) {
             super(CommonComponents.EMPTY, null);
+            this.abstractWidget = abstractWidget;
             this.sign = sign;
         }
 
         @Override
         public List<FormattedCharSequence> toCharSequence(Minecraft minecraft) {
-            return Collections.singletonList(Language.getInstance().getVisualOrder(FormattedText.of(String.valueOf(this.sign) + getCurrentIncrement())));
+            return Collections.singletonList(Language.getInstance()
+                    .getVisualOrder(FormattedText.of(String.valueOf(this.sign) + getCurrentIncrement())));
+        }
+
+        @Override
+        public void refreshTooltipForNextRenderPass(boolean hovering, boolean focused, ScreenRectangle screenRectangle) {
+            if (this.abstractWidget.active) {
+                super.refreshTooltipForNextRenderPass(hovering, focused, screenRectangle);
+            }
         }
     }
 
@@ -187,6 +223,61 @@ public abstract class AbstractCameraScreen extends Screen {
 
         public Type cycle() {
             return VALUES[(this.ordinal() + 1) % VALUES.length];
+        }
+    }
+
+    enum OrthoComponent {
+        ZOOM(OrthoOverlayHandler.KEY_ZOOM,
+                OrthoViewHandler.ZOOM_MIN,
+                OrthoViewHandler.ZOOM_MAX,
+                OrthoViewHandler::getZoom,
+                OrthoViewHandler::setZoom
+        ),
+        X_ROTATION(OrthoOverlayHandler.KEY_X_ROTATION,
+                OrthoViewHandler.X_ROTATION_MIN,
+                OrthoViewHandler.X_ROTATION_MAX,
+                OrthoViewHandler::getXRot,
+                OrthoViewHandler::setXRot
+        ),
+        Y_ROTATION(OrthoOverlayHandler.KEY_Y_ROTATION,
+                OrthoViewHandler.Y_ROTATION_MIN,
+                OrthoViewHandler.Y_ROTATION_MAX,
+                OrthoViewHandler::getYRot,
+                OrthoViewHandler::setYRot
+        );
+
+        static final OrthoComponent[] VALUES = values();
+
+        public final String translationKey;
+        public final Component component;
+        public final float minValue;
+        public final float maxValue;
+        public final Function<OrthoViewHandler, Float> supplier;
+        public final BiConsumer<OrthoViewHandler, Float> consumer;
+
+        OrthoComponent(String translationKey, float minValue, float maxValue, Function<OrthoViewHandler, Float> supplier, BiConsumer<OrthoViewHandler, Float> consumer) {
+            this.translationKey = translationKey;
+            this.component = Component.translatable(translationKey, "");
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            this.supplier = supplier;
+            this.consumer = consumer;
+        }
+
+        public boolean disableWhenFollowingPlayerView() {
+            return this != ZOOM;
+        }
+
+        public boolean supportsLogarithmicScale() {
+            return this == ZOOM;
+        }
+
+        public float getDefaultValue() {
+            return (float) switch (this) {
+                case ZOOM -> Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialZoomLevel;
+                case X_ROTATION -> Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialXRotation;
+                case Y_ROTATION -> Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialYRotation;
+            };
         }
     }
 }

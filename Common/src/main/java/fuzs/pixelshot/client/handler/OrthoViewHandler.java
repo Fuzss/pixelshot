@@ -41,8 +41,8 @@ public class OrthoViewHandler {
     public static final float Y_ROTATION_MAX = 180.0F;
     private static final float ROTATION_STEP_MIN = 8.0F;
     private static final float ROTATION_STEP_MAX = 24.0F;
-    private static final float NEAR_CLIPPING_DISTANCE = 10.0F;
-    private static final float FAR_CLIPPING_DISTANCE = 1000.0F;
+    public static final float NEAR_CLIPPING_DISTANCE = 10.0F;
+    public static final float FAR_CLIPPING_DISTANCE = 1000.0F;
     private static final float STEP_MULTIPLIER = 0.25F;
     static final int DECIMAL_PLACES = 1;
     public static final KeyMapping KEY_TOGGLE_VIEW = KeyMappingHelper.registerKeyMapping(Pixelshot.id(
