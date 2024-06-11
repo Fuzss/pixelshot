@@ -1,9 +1,15 @@
 package fuzs.pixelshot.client.gui.screens;
 
-import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
+import fuzs.puzzleslib.api.client.gui.v2.components.RangedSliderButton;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+
+import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SliderCameraScreen extends AbstractCameraScreen {
 
@@ -12,154 +18,84 @@ public class SliderCameraScreen extends AbstractCameraScreen {
     }
 
     @Override
-    protected void init() {
-        super.init();
-
-        RangedSliderButton textZoom = this.addRenderableWidget(new RangedSliderButton(this.width / 2 - 130,
-                this.height / 6 + 20,
+    void addControlRow(OrthoComponent component, int rowHeight, Collection<AbstractWidget> widgets) {
+        super.addControlRow(component, rowHeight, widgets);
+        Consumer<Float> consumer = (Float value) -> component.consumer.accept(this.handler, value);
+        Supplier<Float> supplier = () -> component.supplier.apply(this.handler);
+        RangedSliderButton sliderButton = new RangedSliderButton(this.width / 2 - 130,
+                rowHeight,
                 260,
                 20,
-                this.handler.getZoom(),
-                OrthoViewHandler.ZOOM_MIN,
-                OrthoViewHandler.ZOOM_MAX
+                supplier.get(),
+                component.minValue,
+                component.maxValue
         ) {
-            static final double SCALE = 4.0;
-            static final double SCALE_POW = Math.pow(10.0, -SCALE);
+            static final double LOGARITHMIC_SCALE = 4.0;
+            static final double LOGARITHMIC_SCALE_POW = Math.pow(10.0, -LOGARITHMIC_SCALE);
 
             @Override
-            public double getValue() {
-                double value = Math.pow(10.0, this.getScaledValue() * SCALE - SCALE) - SCALE_POW;
-                return value * (this.maxValue - this.minValue) + this.minValue;
+            public double getScaledValue() {
+                if (component.supportsLogarithmicScale()) {
+                    double value = Math.pow(10.0, this.getValue() * LOGARITHMIC_SCALE - LOGARITHMIC_SCALE) -
+                            LOGARITHMIC_SCALE_POW;
+                    return value * (this.maxValue - this.minValue) + this.minValue;
+                } else {
+                    return super.getScaledValue();
+                }
             }
 
             @Override
-            public void setValue(double value) {
-                value = (value - this.minValue) / (this.maxValue - this.minValue);
-                this.setScaledValue((Math.log10(value + SCALE_POW) + SCALE) / SCALE);
+            public void setScaledValue(double value) {
+                if (component.supportsLogarithmicScale()) {
+                    value = (value - this.minValue) / (this.maxValue - this.minValue);
+                    this.setValue((Math.log10(value + LOGARITHMIC_SCALE_POW) + LOGARITHMIC_SCALE) / LOGARITHMIC_SCALE);
+                } else {
+                    super.setScaledValue(value);
+                }
             }
 
             @Override
             protected Component getMessageFromValue(double value) {
-                return Component.translatable(OrthoOverlayHandler.KEY_ZOOM, OrthoViewHandler.roundValue((float) value));
+                return Component.translatable(component.translationKey, OrthoViewHandler.roundValue((float) value));
             }
 
             @Override
             protected void applyValue(double value) {
-                SliderCameraScreen.this.handler.setZoom((float) value);
+                consumer.accept((float) value);
             }
-        });
-
-        RangedSliderButton textXRot = this.addRenderableWidget(new RangedSliderButton(this.width / 2 - 130,
-                this.height / 6 + 45,
-                260,
-                20,
-                this.handler.getXRot(),
-                OrthoViewHandler.X_ROTATION_MIN,
-                OrthoViewHandler.X_ROTATION_MAX
-        ) {
-
-            @Override
-            protected Component getMessageFromValue(double value) {
-                return Component.translatable(OrthoOverlayHandler.KEY_X_ROTATION, OrthoViewHandler.roundValue((float) value));
-            }
-
-            @Override
-            protected void applyValue(double value) {
-                SliderCameraScreen.this.handler.setXRot((float) value);
-            }
-        });
-
-        RangedSliderButton textYRot = this.addRenderableWidget(new RangedSliderButton(this.width / 2 - 130,
-                this.height / 6 + 70,
-                260,
-                20,
-                this.handler.getYRot(),
-                OrthoViewHandler.Y_ROTATION_MIN,
-                OrthoViewHandler.Y_ROTATION_MAX
-        ) {
-
-            @Override
-            protected Component getMessageFromValue(double value) {
-                return Component.translatable(OrthoOverlayHandler.KEY_Y_ROTATION, OrthoViewHandler.roundValue((float) value));
-            }
-
-            @Override
-            protected void applyValue(double value) {
-                SliderCameraScreen.this.handler.setYRot((float) value);
-            }
-        });
-
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134,
-                this.height / 6 + 20,
+        };
+        widgets.add(sliderButton);
+        SpritelessImageButton plusButton = new SpritelessImageButton(this.width / 2 + 134,
+                rowHeight,
                 20,
                 20,
                 60,
                 0,
                 WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setZoom(this.handler.getZoom() + getCurrentIncrement());
-                    textZoom.setValue(this.handler.getZoom());
+                (Button button) -> {
+                    consumer.accept(supplier.get() + getCurrentIncrement());
+                    sliderButton.setScaledValue(supplier.get());
                 }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(positiveTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 - 154,
-                this.height / 6 + 20,
+        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+        plusButton.setTooltip(new DynamicTooltip(plusButton, '+'));
+        widgets.add(plusButton);
+        SpritelessImageButton minusButton = new SpritelessImageButton(this.width / 2 - 154,
+                rowHeight,
                 20,
                 20,
                 40,
                 0,
                 WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setZoom(this.handler.getZoom() - getCurrentIncrement());
-                    textZoom.setValue(this.handler.getZoom());
+                (Button button) -> {
+                    consumer.accept(supplier.get() - getCurrentIncrement());
+                    sliderButton.setScaledValue(supplier.get());
                 }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(negativeTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134,
-                this.height / 6 + 45,
-                20,
-                20,
-                60,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setXRot(this.handler.getXRot() + getCurrentIncrement());
-                    textXRot.setValue(this.handler.getXRot());
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(positiveTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 - 154,
-                this.height / 6 + 45,
-                20,
-                20,
-                40,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setXRot(this.handler.getXRot() - getCurrentIncrement());
-                    textXRot.setValue(this.handler.getXRot());
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(negativeTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 + 134,
-                this.height / 6 + 70,
-                20,
-                20,
-                60,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setYRot(this.handler.getYRot() + getCurrentIncrement());
-                    textYRot.setValue(this.handler.getYRot());
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(positiveTooltip());
-        this.addRenderableWidget(new SpritelessImageButton(this.width / 2 - 154,
-                this.height / 6 + 70,
-                20,
-                20,
-                40,
-                0,
-                WIDGETS_LOCATION,
-                button -> {
-                    this.handler.setYRot(this.handler.getYRot() - getCurrentIncrement());
-                    textYRot.setValue(this.handler.getYRot());
-                }
-        )).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT).setTooltip(negativeTooltip());
+        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+        minusButton.setTooltip(new DynamicTooltip(minusButton, '-'));
+        widgets.add(minusButton);
+        widgets.add(this.getResetButton(rowHeight, () -> {
+            consumer.accept(component.getDefaultValue());
+            sliderButton.setScaledValue(component.getDefaultValue());
+        }));
     }
 }
