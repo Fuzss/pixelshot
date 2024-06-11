@@ -3,6 +3,7 @@ package fuzs.pixelshot.client.handler;
 import com.google.common.base.Strings;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import fuzs.pixelshot.Pixelshot;
 import fuzs.puzzleslib.api.chat.v1.ComponentHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -17,6 +18,9 @@ import java.util.List;
 
 public class OrthoOverlayHandler {
     public static final OrthoOverlayHandler INSTANCE = new OrthoOverlayHandler();
+    public static final String KEY_ZOOM = Pixelshot.MOD_ID + ".zoom";
+    public static final String KEY_X_ROTATION = Pixelshot.MOD_ID + ".x_rot";
+    public static final String KEY_Y_ROTATION = Pixelshot.MOD_ID + ".y_rot";
     private static final ChatFormatting TEXT_COLOR = ChatFormatting.WHITE;
     private static final ChatFormatting POSITIVE_COLOR = ChatFormatting.GREEN;
     private static final ChatFormatting NEGATIVE_COLOR = ChatFormatting.RED;
@@ -62,24 +66,24 @@ public class OrthoOverlayHandler {
             // same setup as in GameRenderer::render, so we only render in a level
             if (minecraft.isGameLoadFinished() && minecraft.level != null && minecraft.screen == null) {
                 List<String> lines = new ArrayList<>();
-                lines.add(this.getDisplayEntry(OrthoViewHandler.KEY_ZOOM,
-                        orthoViewHandler.getZoom(1.0F),
+                lines.add(this.getDisplayEntry(KEY_ZOOM,
+                        orthoViewHandler.getZoom(),
                         this.zoomColor
                 ));
                 float xRot;
                 if (orthoViewHandler.followPlayerView()) {
                     xRot = gameRenderer.getMainCamera().getEntity().getViewXRot(1.0F);
                 } else {
-                    xRot = orthoViewHandler.getXRot(1.0F);
+                    xRot = orthoViewHandler.getXRot();
                 }
-                lines.add(this.getDisplayEntry(OrthoViewHandler.KEY_X_ROT, Mth.wrapDegrees(xRot), this.xRotColor));
+                lines.add(this.getDisplayEntry(KEY_X_ROTATION, Mth.wrapDegrees(xRot), this.xRotColor));
                 float yRot;
                 if (orthoViewHandler.followPlayerView()) {
                     yRot = gameRenderer.getMainCamera().getEntity().getViewYRot(1.0F);
                 } else {
-                    yRot = orthoViewHandler.getYRot(1.0F);
+                    yRot = orthoViewHandler.getYRot();
                 }
-                lines.add(this.getDisplayEntry(OrthoViewHandler.KEY_Y_ROT, Mth.wrapDegrees(yRot), this.yRotColor));
+                lines.add(this.getDisplayEntry(KEY_Y_ROTATION, Mth.wrapDegrees(yRot), this.yRotColor));
                 PoseStack posestack = RenderSystem.getModelViewStack();
                 posestack.pushPose();
                 posestack.setIdentity();
@@ -101,7 +105,7 @@ public class OrthoOverlayHandler {
 
     private String getDisplayEntry(String translationKey, float value, ChatFormatting color) {
         Component component = Component.translatable(translationKey,
-                Component.literal("%.1f".formatted(value)).withStyle(color)
+                Component.literal(("%." + OrthoViewHandler.DECIMAL_PLACES + "f").formatted(value)).withStyle(color)
         );
         return ComponentHelper.toString(component);
     }
