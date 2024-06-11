@@ -44,7 +44,7 @@ public class ScreenshotHandler {
 
 		if (keyCapture.isDown()) {
 			Minecraft minecraft = Minecraft.getInstance();
-			if (Pixelshot.CONFIG.get(ClientConfig.class).hideHudForHugeScreenshots) {
+			if (Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.hideHud) {
 				previousHud = minecraft.options.hideGui;
 				minecraft.options.hideGui = true;
 			}
@@ -63,7 +63,7 @@ public class ScreenshotHandler {
 			if (task.onRenderTick()) {
 				task = null;
 				ChatUtils.printFileLink("screenshot.success", taskFile.toFile());
-				if (Pixelshot.CONFIG.get(ClientConfig.class).hideHudForHugeScreenshots) {
+				if (Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.hideHud) {
 					minecraft.options.hideGui = previousHud;
 				}
 			}
@@ -71,7 +71,7 @@ public class ScreenshotHandler {
 			Pixelshot.LOGGER.error("Screenshot capture failed", ex);
 			ChatUtils.print("screenshot.failure", ex.getMessage());
 			task = null;
-			if (Pixelshot.CONFIG.get(ClientConfig.class).hideHudForHugeScreenshots) {
+			if (Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.hideHud) {
 				minecraft.options.hideGui = previousHud;
 			}
 		}

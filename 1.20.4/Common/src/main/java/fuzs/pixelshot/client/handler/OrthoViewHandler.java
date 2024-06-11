@@ -30,16 +30,21 @@ import org.joml.Vector3f;
 public class OrthoViewHandler {
     public static final OrthoViewHandler INSTANCE = new OrthoViewHandler();
     public static final float ZOOM_DEFAULT = 8.0F;
-    public static final float ZOOM_STEP = 0.5F;
     public static final float ZOOM_MIN = 0.1F;
     public static final float ZOOM_MAX = 500.0F;
-    public static final int X_ROT_DEFAULT = 30;
-    public static final int Y_ROT_DEFAULT = 135;
-    private static final float NEAR_CLIPPING_DISTANCE = 10.0F;
-    private static final float FAR_CLIPPING_DISTANCE = 1000.0F;
+    public static final float ZOOM_STEP = 0.5F;
+    public static final float X_ROTATION_DEFAULT = 30.0F;
+    public static final float X_ROTATION_MIN = -90.0F;
+    public static final float X_ROTATION_MAX = 90.0F;
+    public static final float Y_ROTATION_DEFAULT = 135.0F;
+    public static final float Y_ROTATION_MIN = -180.0F;
+    public static final float Y_ROTATION_MAX = 180.0F;
     private static final float ROTATION_STEP_MIN = 8.0F;
     private static final float ROTATION_STEP_MAX = 24.0F;
+    private static final float NEAR_CLIPPING_DISTANCE = 10.0F;
+    private static final float FAR_CLIPPING_DISTANCE = 1000.0F;
     private static final float STEP_MULTIPLIER = 0.25F;
+    static final int DECIMAL_PLACES = 1;
     public static final KeyMapping KEY_TOGGLE_VIEW = KeyMappingHelper.registerKeyMapping(Pixelshot.id(
             "orthographic_camera"), InputConstants.KEY_F7);
     public static final KeyMapping KEY_OPEN_MENU = KeyMappingHelper.registerKeyMapping(Pixelshot.id("open_menu"),
@@ -65,9 +70,6 @@ public class OrthoViewHandler {
     );
     public static final KeyMapping KEY_SWITCH_PRESET = KeyMappingHelper.registerUnboundKeyMapping(Pixelshot.id(
             "switch_preset"));
-    public static final String KEY_ZOOM = Pixelshot.MOD_ID + ".zoom";
-    public static final String KEY_X_ROT = Pixelshot.MOD_ID + ".x_rot";
-    public static final String KEY_Y_ROT = Pixelshot.MOD_ID + ".y_rot";
 
     private float zoom;
     private float xRot;
@@ -81,6 +83,7 @@ public class OrthoViewHandler {
     private boolean nearClipping;
     private boolean renderSky;
     private boolean renderPlayerEntity;
+    private boolean freezeControls;
 
     private boolean tmpHideGui;
     private CameraType tmpCameraType;
@@ -109,6 +112,9 @@ public class OrthoViewHandler {
 
         if (this.oldZoom != this.zoom) {
             OrthoOverlayHandler.INSTANCE.setZoomOverlay(this.zoom, this.oldZoom);
+            if (this.oldZoom < this.zoom) {
+                Minecraft.getInstance().levelRenderer.needsUpdate();
+            }
         }
         if (this.oldXRot != this.xRot) {
             OrthoOverlayHandler.INSTANCE.setXRotOverlay(this.xRot, this.oldXRot);
@@ -122,6 +128,8 @@ public class OrthoViewHandler {
         }
 
         this.setOldValues();
+
+        if (this.freezeControls) return;
 
         while (KEY_TOGGLE_VIEW.consumeClick()) {
             if (Screen.hasAltDown()) {
@@ -214,9 +222,9 @@ public class OrthoViewHandler {
         this.isActive = isActive;
         this.followPlayerView = this.nearClipping = this.renderSky = false;
         this.renderPlayerEntity = true;
-        this.setZoom(ZOOM_DEFAULT);
-        this.setXRot(Pixelshot.CONFIG.get(ClientConfig.class).defaultXRotation);
-        this.setYRot(Pixelshot.CONFIG.get(ClientConfig.class).defaultYRotation);
+        this.setZoom((float) Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialZoomLevel);
+        this.setXRot((float) Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialXRotation);
+        this.setYRot((float) Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialYRotation);
         this.setOldValues();
     }
 
@@ -262,20 +270,32 @@ public class OrthoViewHandler {
         this.renderPlayerEntity = !this.renderPlayerEntity;
     }
 
+    public void freezeControls(boolean freezeControls) {
+        this.freezeControls = freezeControls;
+    }
+
     public void setZoom(float zoom) {
-        zoom = Mth.clamp(zoom, ZOOM_MIN, ZOOM_MAX);
-        if (zoom > this.zoom) {
-            Minecraft.getInstance().levelRenderer.needsUpdate();
-        }
-        this.zoom = zoom;
+        this.zoom = Mth.clamp(zoom, ZOOM_MIN, ZOOM_MAX);
     }
 
     public void setXRot(float xRot) {
-        this.xRot = xRot;
+        this.xRot = Mth.clamp(xRot, X_ROTATION_MIN, X_ROTATION_MAX);
     }
 
     public void setYRot(float yRot) {
         this.yRot = yRot;
+    }
+
+    public float getZoom() {
+        return this.getZoom(1.0F);
+    }
+
+    public float getXRot() {
+        return this.getXRot(1.0F);
+    }
+
+    public float getYRot() {
+        return this.getYRot(1.0F);
     }
 
     public float getZoom(float partialTick) {
@@ -292,7 +312,7 @@ public class OrthoViewHandler {
 
     public Matrix4f getProjectionMatrix(Minecraft minecraft, float partialTick, boolean forFrustum) {
         // thanks to OrthoCamera mod for this trick with offsetting the zoom level for frustum
-        // otherwise game often completely freezes when frustum and projection matrix match
+        // otherwise game often completely freezes when frustum and projection matrix are not far enough apart
         // source at https://github.com/DimasKama/OrthoCamera/tree/master
         float height = this.getZoom(partialTick) + (forFrustum ? 20.0F : 0.0F);
         float width = height * (minecraft.getWindow().getWidth() / (float) minecraft.getWindow().getHeight());
@@ -302,5 +322,10 @@ public class OrthoViewHandler {
                 height,
                 !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE, FAR_CLIPPING_DISTANCE
         );
+    }
+
+    public static float roundValue(float value) {
+        float roundingPrecision = (float) Math.pow(10.0, DECIMAL_PLACES);
+        return Math.round(value * roundingPrecision) / roundingPrecision;
     }
 }

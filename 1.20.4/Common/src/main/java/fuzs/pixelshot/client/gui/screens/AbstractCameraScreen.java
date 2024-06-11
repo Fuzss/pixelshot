@@ -5,20 +5,31 @@ import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.ToIntFunction;
 
 public abstract class AbstractCameraScreen extends Screen {
+    public static final ToIntFunction<Button> SINGLE_TEXTURE_LAYOUT = (Button button) -> {
+        return 0;
+    };
     static final ResourceLocation WIDGETS_LOCATION = Pixelshot.id("textures/gui/widgets.png");
     static final Component COMPONENT_ON = Component.empty()
             .append(CommonComponents.OPTION_ON)
@@ -31,6 +42,9 @@ public abstract class AbstractCameraScreen extends Screen {
     public static final String KEY_NEAR_CLIPPING = "screen.orthographic_camera.near_clipping";
     public static final String KEY_RENDER_SKY = "screen.orthographic_camera.render_sky";
     public static final String KEY_RENDER_PLAYER = "screen.orthographic_camera.render_player";
+    static final float DEFAULT_INCREMENT = 1.0F;
+    static final float LARGE_INCREMENT = 10.0F;
+    static final float SMALL_INCREMENT = 0.1F;
 
     private static Type lastType = Type.EDIT_BOX;
 
@@ -60,25 +74,25 @@ public abstract class AbstractCameraScreen extends Screen {
                     this.handler.flipFollowPlayerView();
                     button.setMessage(getOptionComponent(KEY_FOLLOW_VIEW, this.handler.followPlayerView()));
                 }
-        ).bounds(this.width / 2 - 156, this.height / 6 + 100, 154, 20).build());
+        ).bounds(this.width / 2 - 154, this.height / 6 + 100, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_NEAR_CLIPPING, this.handler.nearClipping()),
                 (Button button) -> {
                     this.handler.flipNearClipping();
                     button.setMessage(getOptionComponent(KEY_NEAR_CLIPPING, this.handler.nearClipping()));
                 }
-        ).bounds(this.width / 2 + 2, this.height / 6 + 100, 154, 20).build());
+        ).bounds(this.width / 2 + 4, this.height / 6 + 100, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_RENDER_SKY, this.handler.renderSky()),
                 (Button button) -> {
                     this.handler.flipRenderSky();
                     button.setMessage(getOptionComponent(KEY_RENDER_SKY, this.handler.renderSky()));
                 }
-        ).bounds(this.width / 2 - 156, this.height / 6 + 126, 154, 20).build());
+        ).bounds(this.width / 2 - 154, this.height / 6 + 126, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_RENDER_PLAYER,
                 this.handler.renderPlayerEntity()
         ), (Button button) -> {
             this.handler.flipRenderPlayerEntity();
             button.setMessage(getOptionComponent(KEY_RENDER_PLAYER, this.handler.renderPlayerEntity()));
-        }).bounds(this.width / 2 + 2, this.height / 6 + 126, 154, 20).build());
+        }).bounds(this.width / 2 + 4, this.height / 6 + 126, 150, 20).build());
         for (int i = 0; i < 3; i++) {
             Set<AbstractWidget> widgets = Sets.newIdentityHashSet();
             this.addControlRow(this.height / 6 + 20 + i * 25, widgets);
@@ -89,12 +103,13 @@ public abstract class AbstractCameraScreen extends Screen {
     void addControlRow(int rowHeight, Collection<AbstractWidget> widgets) {
         widgets.add(new SpritelessImageButton(this.width / 2 + 158, rowHeight, 20, 20, 4 * 20, 0, WIDGETS_LOCATION, (Button button) -> {
             this.focusModeActive = !this.focusModeActive;
-            for (Renderable renderable : this.renderables) {
-                if (renderable instanceof AbstractWidget abstractWidget && !widgets.contains(abstractWidget)) {
+            ((SpritelessImageButton) button).xTexStart = (this.focusModeActive ? 5 : 4) * 20;
+            for (GuiEventListener guiEventListener : this.children()) {
+                if (guiEventListener instanceof AbstractWidget abstractWidget && !widgets.contains(abstractWidget)) {
                     abstractWidget.visible = !this.focusModeActive;
                 }
             }
-        }).setDrawBackground().setTextureLayout(value -> 0));
+        }).setDrawBackground().setTextureLayout(SINGLE_TEXTURE_LAYOUT));
     }
 
     static Component getOptionComponent(String translationKey, boolean onOffState) {
@@ -123,6 +138,37 @@ public abstract class AbstractCameraScreen extends Screen {
 
     public static Screen openScreen() {
         return lastType.factory.apply(COMPONENT_TITLE, OrthoViewHandler.INSTANCE);
+    }
+
+    static float getCurrentIncrement() {
+        if (Screen.hasShiftDown()) {
+            return LARGE_INCREMENT;
+        } else if (Screen.hasAltDown()) {
+            return SMALL_INCREMENT;
+        } else {
+            return DEFAULT_INCREMENT;
+        }
+    }
+
+    static Tooltip positiveTooltip() {
+        return new DynamicTooltip('+');
+    }
+    static Tooltip negativeTooltip() {
+        return new DynamicTooltip('-');
+    }
+
+    private static class DynamicTooltip extends Tooltip {
+        private final char sign;
+
+        DynamicTooltip(char sign) {
+            super(CommonComponents.EMPTY, null);
+            this.sign = sign;
+        }
+
+        @Override
+        public List<FormattedCharSequence> toCharSequence(Minecraft minecraft) {
+            return Collections.singletonList(Language.getInstance().getVisualOrder(FormattedText.of(String.valueOf(this.sign) + getCurrentIncrement())));
+        }
     }
 
     enum Type {

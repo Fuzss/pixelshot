@@ -30,8 +30,8 @@ public class CaptureTask implements RenderTickTask {
 			this.displayWidth = this.window.getWidth();
             this.displayHeight = this.window.getHeight();
 
-            int width = Pixelshot.CONFIG.get(ClientConfig.class).viewCaptureWidth;
-            int height = Pixelshot.CONFIG.get(ClientConfig.class).viewCaptureHeight;
+            int width = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.viewCaptureWidth;
+            int height = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.viewCaptureHeight;
 
             // Resize viewport/framebuffer
             this.window.onFramebufferResize(this.window.getWindow(), width, height);
