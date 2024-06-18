@@ -2,6 +2,7 @@ package fuzs.pixelshot.data.client;
 
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
+import fuzs.pixelshot.client.handler.ScreenshotHandler;
 import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
@@ -19,8 +20,8 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         builder.add(OrthoOverlayHandler.KEY_ZOOM, "Zoom: %s");
         builder.add(OrthoOverlayHandler.KEY_X_ROTATION, "Pitch: %s");
         builder.add(OrthoOverlayHandler.KEY_Y_ROTATION, "Yaw: %s");
-        builder.add(OrthoViewHandler.KEY_TOGGLE_VIEW, "Orthographic Camera");
-        builder.add(OrthoViewHandler.KEY_OPEN_MENU, "Camera Configuration");
+        builder.add(OrthoViewHandler.KEY_TOGGLE_VIEW, "Toggle Orthographic Camera");
+        builder.add(OrthoViewHandler.KEY_OPEN_MENU, "Open Camera Configuration");
         builder.add(OrthoViewHandler.KEY_ZOOM_IN, "Zoom Camera In");
         builder.add(OrthoViewHandler.KEY_ZOOM_OUT, "Zoom Camera Out");
         builder.add(OrthoViewHandler.KEY_ROTATE_UP, "Rotate Camera Up");
@@ -33,5 +34,8 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         builder.add(AbstractCameraScreen.KEY_NEAR_CLIPPING, "Near Clipping: %s");
         builder.add(AbstractCameraScreen.KEY_RENDER_SKY, "Render Sky: %s");
         builder.add(AbstractCameraScreen.KEY_RENDER_PLAYER, "Render Player: %s");
+        builder.add(ScreenshotHandler.KEY_HIGH_RESOLUTION_SCREENSHOT, "Take High Resolution Screenshot");
+        builder.add(ScreenshotHandler.KEY_PANORAMIC_SCREENSHOT, "Take Panoramic Screenshot");
+        builder.add(ScreenshotHandler.COMPONENT_SCREENSHOT_TAKE, "Taking screenshot...");
     }
 }

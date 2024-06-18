@@ -3,6 +3,7 @@ package fuzs.pixelshot.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
+import fuzs.pixelshot.client.handler.ScreenshotHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -11,8 +12,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 abstract class GameRendererMixin {
@@ -48,5 +51,12 @@ abstract class GameRendererMixin {
         } else {
             return operation.call(gameRenderer, fov);
         }
+    }
+
+    @Inject(method = "isPanoramicMode", at = @At("HEAD"), cancellable = true)
+    public void isPanoramicMode(CallbackInfoReturnable<Boolean> callback) {
+        // without this most render buffers are not properly resized
+        // only change this method, not the GameRenderer#panoramicMode flag which also controls field of view and held item rendering
+        if (ScreenshotHandler.INSTANCE.isHugeScreenshotMode()) callback.setReturnValue(true);
     }
 }

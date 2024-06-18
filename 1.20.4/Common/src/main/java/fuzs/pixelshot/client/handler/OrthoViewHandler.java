@@ -9,7 +9,6 @@ import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
-import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.api.event.v1.data.MutableValue;
 import net.minecraft.client.Camera;
@@ -98,14 +97,6 @@ public class OrthoViewHandler {
         context.registerKeyMapping(KEY_ROTATE_UP, KeyActivationContext.GAME);
         context.registerKeyMapping(KEY_ROTATE_DOWN, KeyActivationContext.GAME);
         context.registerKeyMapping(KEY_SWITCH_PRESET, KeyActivationContext.GAME);
-    }
-
-    public void onComputeFieldOfView(GameRenderer renderer, Camera camera, float partialTick, MutableDouble fieldOfView) {
-        // just a random event that fires in-between Camera::setup and Camera::isDetached being called,
-        // so we can force the player to render despite not being in third-person view
-        if (this.isActive && this.renderPlayerEntity) {
-            camera.detached = true;
-        }
     }
 
     public void onStartClientTick(Minecraft minecraft) {
@@ -208,9 +199,16 @@ public class OrthoViewHandler {
     }
 
     public void onComputeCameraAngles(GameRenderer renderer, Camera camera, float partialTick, MutableFloat pitch, MutableFloat yaw, MutableFloat roll) {
-        if (this.isActive && !this.followPlayerView) {
-            pitch.accept(this.getXRot(partialTick));
-            yaw.accept(this.getYRot(partialTick));
+        if (this.isActive) {
+            if (!this.followPlayerView) {
+                pitch.accept(this.getXRot(partialTick));
+                yaw.accept(this.getYRot(partialTick));
+            }
+            // just a random event that fires in-between Camera::setup and Camera::isDetached being called,
+            // so we can force the player to render despite not being in third-person view
+            if (this.renderPlayerEntity) {
+                camera.detached = true;
+            }
         }
     }
 
