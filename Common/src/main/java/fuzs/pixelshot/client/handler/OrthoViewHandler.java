@@ -9,6 +9,7 @@ import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
+import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.api.event.v1.data.MutableValue;
 import net.minecraft.client.Camera;
@@ -198,14 +199,14 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onComputeCameraAngles(GameRenderer renderer, Camera camera, float partialTick, MutableFloat pitch, MutableFloat yaw, MutableFloat roll) {
+    public void onComputeFieldOfView(GameRenderer renderer, Camera camera, float partialTick, MutableDouble fieldOfView) {
         if (this.isActive) {
+            // just a random event that fires after Camera::setup, and before values set through that are used
+            // note that it's important to set the rotation on the camera itself, so that e.g. particles are rotated correctly
+            // possibly switch back to ComputeCameraAnglesCallback for 1.21 since NeoForge has moved the injection point
             if (!this.followPlayerView) {
-                pitch.accept(this.getXRot(partialTick));
-                yaw.accept(this.getYRot(partialTick));
+                camera.setRotation(this.getYRot(partialTick), this.getXRot(partialTick));
             }
-            // just a random event that fires in-between Camera::setup and Camera::isDetached being called,
-            // so we can force the player to render despite not being in third-person view
             if (this.renderPlayerEntity) {
                 camera.detached = true;
             }
