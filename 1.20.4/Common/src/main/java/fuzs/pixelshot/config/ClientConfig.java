@@ -37,12 +37,12 @@ public class ClientConfig implements ConfigCore {
                         "Largest allowed value depends on current system and will crash when unsupported. If that happens enable tiled rendering."
                 }
         )
-        @Config.IntRange(min = 1, max = 61_440)
+        @Config.IntRange(min = 1, max = 34_560)
         public int imageHeight = 2160;
         @Config(
                 description = {
                         "Alternative high resolution screenshot rendering method, will halt the game while taking the screenshot. Supports higher resolutions than the default rendering.",
-                        "Rarely causes an unexpected indefinite client freeze while capturing. Use with caution!"
+                        "Rarely causes an unexpected indefinite client freeze while capturing. Use with caution."
                 }
         )
         public boolean tiledRendering = false;
