@@ -97,7 +97,6 @@ public abstract class AbstractCameraScreen extends Screen {
             button.setMessage(getOptionComponent(KEY_RENDER_PLAYER, this.handler.renderPlayerEntity()));
         }).bounds(this.width / 2 + 4, this.height / 6 + 126, 150, 20).build());
 
-
         for (int i = 0; i < OrthoComponent.VALUES.length; i++) {
             OrthoComponent component = OrthoComponent.VALUES[i];
             Collection<AbstractWidget> widgets = new ArrayList<>();
