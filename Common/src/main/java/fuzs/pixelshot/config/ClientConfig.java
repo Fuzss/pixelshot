@@ -29,7 +29,7 @@ public class ClientConfig implements ConfigCore {
                         "Largest allowed value depends on current system and will crash when unsupported. If that happens enable tiled rendering."
                 }
         )
-        @Config.IntRange(min = 1, max = 61_440)
+        @Config.IntRange(min = 1)
         public int imageWidth = 3840;
         @Config(
                 description = {
@@ -37,7 +37,7 @@ public class ClientConfig implements ConfigCore {
                         "Largest allowed value depends on current system and will crash when unsupported. If that happens enable tiled rendering."
                 }
         )
-        @Config.IntRange(min = 1, max = 34_560)
+        @Config.IntRange(min = 1)
         public int imageHeight = 2160;
         @Config(
                 description = {
@@ -47,7 +47,7 @@ public class ClientConfig implements ConfigCore {
         )
         public boolean tiledRendering = false;
         @Config(description = "Image width and height for panoramic screenshot tiles. Should ideally be two to the power of X.")
-        @Config.IntRange(min = 1, max = 16_384)
+        @Config.IntRange(min = 1)
         public int panoramicResolution = 1024;
     }
 }
