@@ -4,14 +4,15 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
+import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -51,12 +52,12 @@ public class ScreenshotHandler {
         gameRenderer.setRenderHand(!hugeScreenshotMode);
     }
 
-    public void onAfterKeyAction(int key, int scanCode, int action, int modifiers) {
+    public EventResult onKeyPress(int keyCode, int scanCode, int action, int modifiers) {
         Minecraft minecraft = Minecraft.getInstance();
         // don't allow this when screen is open, as it does not render the screen layer anyway
         // also means we do not have to deal with the keybindings screen when checking key mapping matches
         if (action == InputConstants.PRESS && minecraft.screen == null) {
-            if (KEY_HIGH_RESOLUTION_SCREENSHOT.matches(key, scanCode)) {
+            if (KEY_HIGH_RESOLUTION_SCREENSHOT.matches(keyCode, scanCode)) {
                 int windowWidth = minecraft.getWindow().getWidth();
                 int windowHeight = minecraft.getWindow().getHeight();
                 int imageWidth = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.imageWidth;
@@ -82,7 +83,7 @@ public class ScreenshotHandler {
                 this.setHugeScreenshotMode(false);
             }
 
-            if (KEY_PANORAMIC_SCREENSHOT.matches(key, scanCode) && !OrthoViewHandler.INSTANCE.isActive()) {
+            if (KEY_PANORAMIC_SCREENSHOT.matches(keyCode, scanCode) && !OrthoViewHandler.INSTANCE.isActive()) {
                 int panoramicResolution = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.panoramicResolution;
                 Component component = this.grabPanoramicScreenshot(minecraft,
                         minecraft.gameDirectory,
@@ -93,6 +94,8 @@ public class ScreenshotHandler {
                 minecraft.execute(() -> minecraft.gui.getChat().addMessage(component));
             }
         }
+
+        return EventResult.PASS;
     }
 
     /**
@@ -109,7 +112,7 @@ public class ScreenshotHandler {
             window.setWidth(imageWidth);
             window.setHeight(imageHeight);
             renderTarget.bindWrite(true);
-            minecraft.gameRenderer.renderLevel(1.0F, 0L, new PoseStack());
+            minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
             String screenshotName = getFile(minecraft.gameDirectory, "huge_", ".png").getName();
             Screenshot.grab(minecraft.gameDirectory, screenshotName, renderTarget, consumer);
             consumer.accept(COMPONENT_SCREENSHOT_TAKE);
@@ -183,7 +186,7 @@ public class ScreenshotHandler {
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
                 renderTarget.bindWrite(true);
-                minecraft.gameRenderer.renderLevel(1.0F, 0L, new PoseStack());
+                minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
 
                 try {
                     Thread.sleep(10L);

@@ -28,7 +28,7 @@ public class PixelshotClient implements ClientModConstructor {
         ClientPlayerNetworkEvents.LOGGED_IN.register(OrthoViewHandler.INSTANCE::onLoggedIn);
         ClientTickEvents.START.register(OrthoOverlayHandler.INSTANCE::onStartClientTick);
         GameRenderEvents.AFTER.register(OrthoOverlayHandler.INSTANCE::onAfterGameRender);
-        InputEvents.AFTER_KEY_ACTION.register(ScreenshotHandler.INSTANCE::onAfterKeyAction);
+        InputEvents.KEY_PRESS.register(ScreenshotHandler.INSTANCE::onKeyPress);
     }
 
     @Override

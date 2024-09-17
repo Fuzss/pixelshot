@@ -6,20 +6,15 @@ import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +23,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class AbstractCameraScreen extends Screen {
     static final ResourceLocation WIDGETS_LOCATION = Pixelshot.id("textures/gui/widgets.png");
@@ -182,28 +178,8 @@ public abstract class AbstractCameraScreen extends Screen {
         }
     }
 
-    static class DynamicTooltip extends Tooltip {
-        private final AbstractWidget abstractWidget;
-        private final char sign;
-
-        public DynamicTooltip(AbstractWidget abstractWidget, char sign) {
-            super(CommonComponents.EMPTY, null);
-            this.abstractWidget = abstractWidget;
-            this.sign = sign;
-        }
-
-        @Override
-        public List<FormattedCharSequence> toCharSequence(Minecraft minecraft) {
-            return Collections.singletonList(Language.getInstance()
-                    .getVisualOrder(FormattedText.of(String.valueOf(this.sign) + getCurrentIncrement())));
-        }
-
-        @Override
-        public void refreshTooltipForNextRenderPass(boolean hovering, boolean focused, ScreenRectangle screenRectangle) {
-            if (this.abstractWidget.active) {
-                super.refreshTooltipForNextRenderPass(hovering, focused, screenRectangle);
-            }
-        }
+    static Supplier<List<? extends FormattedText>> getCurrentTooltipLines(char sign) {
+        return () -> Collections.singletonList(FormattedText.of(String.valueOf(sign) + getCurrentIncrement()));
     }
 
     enum Type {

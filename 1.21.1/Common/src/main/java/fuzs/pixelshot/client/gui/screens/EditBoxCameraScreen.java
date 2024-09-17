@@ -3,6 +3,7 @@ package fuzs.pixelshot.client.gui.screens;
 import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
+import fuzs.puzzleslib.api.client.gui.v2.components.tooltip.TooltipBuilder;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -70,7 +71,7 @@ public class EditBoxCameraScreen extends AbstractCameraScreen {
                     editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(supplier.get())));
                 }
         ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
-        plusButton.setTooltip(new DynamicTooltip(plusButton, '+'));
+        TooltipBuilder.create().setLines(getCurrentTooltipLines('+')).build(plusButton);
         widgets.add(plusButton);
         SpritelessImageButton minusButton = new SpritelessImageButton(this.width / 2 + 134,
                 rowHeight + 10,
@@ -84,7 +85,7 @@ public class EditBoxCameraScreen extends AbstractCameraScreen {
                     editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(supplier.get())));
                 }
         ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
-        minusButton.setTooltip(new DynamicTooltip(minusButton, '-'));
+        TooltipBuilder.create().setLines(getCurrentTooltipLines('-')).build(minusButton);
         widgets.add(minusButton);
         widgets.add(this.getResetButton(rowHeight, () -> {
             consumer.accept(component.getDefaultValue());
