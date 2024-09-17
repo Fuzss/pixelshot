@@ -12,10 +12,7 @@ import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
 import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.api.event.v1.data.MutableValue;
-import net.minecraft.client.Camera;
-import net.minecraft.client.CameraType;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -175,7 +172,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onBeforeGameRender(Minecraft minecraft, GameRenderer gameRenderer, float partialTick) {
+    public void onBeforeGameRender(Minecraft minecraft, GameRenderer gameRenderer, DeltaTracker deltaTracker) {
         if (this.isActive) {
             this.tmpHideGui = minecraft.options.hideGui;
             minecraft.options.hideGui = true;
@@ -184,7 +181,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onAfterGameRender(Minecraft minecraft, GameRenderer gameRenderer, float partialTick) {
+    public void onAfterGameRender(Minecraft minecraft, GameRenderer gameRenderer, DeltaTracker deltaTracker) {
         if (this.isActive) {
             minecraft.options.hideGui = this.tmpHideGui;
             minecraft.options.setCameraType(this.tmpCameraType);

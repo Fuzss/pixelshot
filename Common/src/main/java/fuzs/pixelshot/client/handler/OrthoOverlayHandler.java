@@ -2,16 +2,17 @@ package fuzs.pixelshot.client.handler;
 
 import com.google.common.base.Strings;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.pixelshot.Pixelshot;
 import fuzs.puzzleslib.api.chat.v1.ComponentHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.joml.Matrix4fStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,7 @@ public class OrthoOverlayHandler {
         return newValue - oldValue > 0.0F ? POSITIVE_COLOR : NEGATIVE_COLOR;
     }
 
-    public void onAfterGameRender(Minecraft minecraft, GameRenderer gameRenderer, float partialTick) {
+    public void onAfterGameRender(Minecraft minecraft, GameRenderer gameRenderer, DeltaTracker deltaTracker) {
         OrthoViewHandler orthoViewHandler = OrthoViewHandler.INSTANCE;
         if (orthoViewHandler.isActive() && this.overlayTicks > 0) {
             // same setup as in GameRenderer::render, so we only render in a level
@@ -84,20 +85,19 @@ public class OrthoOverlayHandler {
                     yRot = orthoViewHandler.getYRot();
                 }
                 lines.add(this.getDisplayEntry(KEY_Y_ROTATION, Mth.wrapDegrees(yRot), this.yRotColor));
-                PoseStack posestack = RenderSystem.getModelViewStack();
-                posestack.pushPose();
-                posestack.setIdentity();
-                posestack.translate(0.0F, 0.0F, -11000.0F);
+                Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+                matrix4fStack.pushMatrix();
+                matrix4fStack.translate(0.0F, 0.0F, -11000.0F);
                 RenderSystem.applyModelViewMatrix();
                 GuiGraphics guiGraphics = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
                 this.renderLines(minecraft.font,
                         guiGraphics,
                         lines,
-                        Mth.clamp((this.overlayTicks - partialTick) / OVERLAY_FADE_START, 0.0F, 1.0F),
+                        Mth.clamp((this.overlayTicks - deltaTracker.getGameTimeDeltaPartialTick(false)) / OVERLAY_FADE_START, 0.0F, 1.0F),
                         true
                 );
                 guiGraphics.flush();
-                posestack.popPose();
+                matrix4fStack.popMatrix();
                 RenderSystem.applyModelViewMatrix();
             }
         }
