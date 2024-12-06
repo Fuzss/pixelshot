@@ -9,7 +9,6 @@ import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
-import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.api.event.v1.data.MutableValue;
 import net.minecraft.client.*;
@@ -45,26 +44,19 @@ public class OrthoViewHandler {
     public static final KeyMapping KEY_TOGGLE_VIEW = KeyMappingHelper.registerKeyMapping(Pixelshot.id(
             "orthographic_camera"), InputConstants.KEY_F7);
     public static final KeyMapping KEY_OPEN_MENU = KeyMappingHelper.registerKeyMapping(Pixelshot.id("open_menu"),
-            InputConstants.KEY_F8
-    );
+            InputConstants.KEY_F8);
     public static final KeyMapping KEY_ZOOM_IN = KeyMappingHelper.registerKeyMapping(Pixelshot.id("zoom_in"),
-            InputConstants.KEY_RBRACKET
-    );
+            InputConstants.KEY_RBRACKET);
     public static final KeyMapping KEY_ZOOM_OUT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("zoom_out"),
-            InputConstants.KEY_BACKSLASH
-    );
+            InputConstants.KEY_BACKSLASH);
     public static final KeyMapping KEY_ROTATE_LEFT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_left"),
-            InputConstants.KEY_LEFT
-    );
+            InputConstants.KEY_LEFT);
     public static final KeyMapping KEY_ROTATE_RIGHT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_right"),
-            InputConstants.KEY_RIGHT
-    );
+            InputConstants.KEY_RIGHT);
     public static final KeyMapping KEY_ROTATE_UP = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_up"),
-            InputConstants.KEY_UP
-    );
+            InputConstants.KEY_UP);
     public static final KeyMapping KEY_ROTATE_DOWN = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_down"),
-            InputConstants.KEY_DOWN
-    );
+            InputConstants.KEY_DOWN);
     public static final KeyMapping KEY_SWITCH_PRESET = KeyMappingHelper.registerUnboundKeyMapping(Pixelshot.id(
             "switch_preset"));
 
@@ -196,7 +188,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onComputeFieldOfView(GameRenderer renderer, Camera camera, float partialTick, MutableDouble fieldOfView) {
+    public void onComputeFieldOfView(GameRenderer renderer, Camera camera, float partialTick, MutableFloat fieldOfView) {
         if (this.isActive) {
             // just a random event that fires after Camera::setup, and before values set through that are used
             // note that it's important to set the rotation on the camera itself, so that e.g. particles are rotated correctly
@@ -316,8 +308,8 @@ public class OrthoViewHandler {
                 width,
                 -height,
                 height,
-                !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE, FAR_CLIPPING_DISTANCE
-        );
+                !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE,
+                FAR_CLIPPING_DISTANCE);
     }
 
     public static float roundValue(float value) {
