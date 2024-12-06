@@ -25,14 +25,14 @@ abstract class GameRendererMixin {
 
     @ModifyVariable(
             method = "renderLevel", at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/GameRenderer;resetProjectionMatrix(Lorg/joml/Matrix4f;)V",
-            shift = At.Shift.BEFORE
+            value = "INVOKE", target = "Lnet/minecraft/client/Options;fov()Lnet/minecraft/client/OptionInstance;"
     ), ordinal = 0
     )
     public Matrix4f renderLevel$0(Matrix4f matrix4f, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
-            return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft, deltaTracker.getGameTimeDeltaPartialTick(true), false);
+            return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft,
+                    deltaTracker.getGameTimeDeltaPartialTick(true),
+                    false);
         } else {
             return matrix4f;
         }
@@ -41,15 +41,15 @@ abstract class GameRendererMixin {
     @WrapOperation(
             method = "renderLevel", at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(D)Lorg/joml/Matrix4f;"
+            target = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(F)Lorg/joml/Matrix4f;"
     ), slice = @Slice(
             from = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/Camera;getPosition()Lnet/minecraft/world/phys/Vec3;"
+                    target = "Lnet/minecraft/client/Options;fov()Lnet/minecraft/client/OptionInstance;"
             )
     )
     )
-    public Matrix4f renderLevel$1(GameRenderer gameRenderer, double fov, Operation<Matrix4f> operation) {
+    public Matrix4f renderLevel$1(GameRenderer gameRenderer, float fov, Operation<Matrix4f> operation) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
             return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft, 1.0F, true);
         } else {

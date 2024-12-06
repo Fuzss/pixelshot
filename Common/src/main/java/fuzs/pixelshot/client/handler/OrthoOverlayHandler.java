@@ -3,7 +3,7 @@ package fuzs.pixelshot.client.handler;
 import com.google.common.base.Strings;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fuzs.pixelshot.Pixelshot;
-import fuzs.puzzleslib.api.chat.v1.ComponentHelper;
+import fuzs.puzzleslib.api.util.v1.ComponentHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -88,7 +88,6 @@ public class OrthoOverlayHandler {
                 Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
                 matrix4fStack.pushMatrix();
                 matrix4fStack.translate(0.0F, 0.0F, -11000.0F);
-                RenderSystem.applyModelViewMatrix();
                 GuiGraphics guiGraphics = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
                 this.renderLines(minecraft.font,
                         guiGraphics,
@@ -98,7 +97,6 @@ public class OrthoOverlayHandler {
                 );
                 guiGraphics.flush();
                 matrix4fStack.popMatrix();
-                RenderSystem.applyModelViewMatrix();
             }
         }
     }

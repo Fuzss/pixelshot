@@ -13,8 +13,7 @@ import java.util.function.Function;
 public class DirectionHelper {
     static final Map<Direction, Vector3f> VALUES = Arrays.stream(Direction.values())
             .collect(Maps.<Direction, Direction, Vector3f>toImmutableEnumMap(Function.identity(),
-                    DirectionHelper::getAnglesFromRotation
-            ));
+                    DirectionHelper::getAnglesFromRotation));
 
     static Vector3f getAnglesFromRotation(Direction direction) {
         // angles we get from these that we use for setting up our pitch & yaw
@@ -68,6 +67,6 @@ public class DirectionHelper {
         Vector3f vector3f = DirectionHelper.getDirectionVector(xRot * Mth.DEG_TO_RAD, yRot * Mth.DEG_TO_RAD);
         int maxComponent = vector3f.absolute(new Vector3f()).maxComponent();
         Vector3i vector3i = new Vector3i().setComponent(maxComponent, (int) Math.signum(vector3f.get(maxComponent)));
-        return Direction.fromDelta(vector3i.x(), vector3i.y(), vector3i.z());
+        return Direction.getNearest(vector3i.x(), vector3i.y(), vector3i.z(), null);
     }
 }

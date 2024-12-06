@@ -1,7 +1,6 @@
 package fuzs.pixelshot.client.handler;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import fuzs.pixelshot.Pixelshot;
@@ -74,8 +73,7 @@ public class ScreenshotHandler {
                             windowWidth,
                             windowHeight,
                             imageWidth,
-                            imageHeight
-                    ));
+                            imageHeight));
                 } else {
                     this.grabHugeScreenshot(minecraft, windowWidth, windowHeight, imageWidth, imageHeight, consumer);
                 }
@@ -88,8 +86,7 @@ public class ScreenshotHandler {
                 Component component = this.grabPanoramicScreenshot(minecraft,
                         minecraft.gameDirectory,
                         panoramicResolution,
-                        panoramicResolution
-                );
+                        panoramicResolution);
 
                 minecraft.execute(() -> minecraft.gui.getChat().addMessage(component));
             }
@@ -106,11 +103,11 @@ public class ScreenshotHandler {
      */
     private void grabHugeScreenshot(Minecraft minecraft, int windowWidth, int windowHeight, int imageWidth, int imageHeight, Consumer<Component> consumer) {
         Window window = minecraft.getWindow();
-        RenderTarget renderTarget = new TextureTarget(imageWidth, imageHeight, true, Minecraft.ON_OSX);
+        RenderTarget renderTarget = minecraft.getMainRenderTarget();
         try {
-            minecraft.levelRenderer.graphicsChanged();
             window.setWidth(imageWidth);
             window.setHeight(imageHeight);
+            renderTarget.resize(imageWidth, imageHeight);
             renderTarget.bindWrite(true);
             minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
             String screenshotName = getFile(minecraft.gameDirectory, "huge_", ".png").getName();
@@ -119,9 +116,8 @@ public class ScreenshotHandler {
         } finally {
             window.setWidth(windowWidth);
             window.setHeight(windowHeight);
-            renderTarget.destroyBuffers();
-            minecraft.levelRenderer.graphicsChanged();
-            minecraft.getMainRenderTarget().bindWrite(true);
+            renderTarget.resize(windowWidth, windowHeight);
+            renderTarget.bindWrite(true);
         }
     }
 
@@ -139,17 +135,17 @@ public class ScreenshotHandler {
         Player player = minecraft.player;
         int windowWidth = window.getWidth();
         int windowHeight = window.getHeight();
-        RenderTarget renderTarget = new TextureTarget(width, height, true, Minecraft.ON_OSX);
+        RenderTarget renderTarget = minecraft.getMainRenderTarget();
         float xRot = player.getXRot();
         float yRot = player.getYRot();
         float xRotO = player.xRotO;
         float yRotO = player.yRotO;
-        this.setPanoramicMode(true);
 
         try {
-            minecraft.levelRenderer.graphicsChanged();
+            this.setPanoramicMode(true);
             window.setWidth(width);
             window.setHeight(height);
+            renderTarget.resize(width, height);
 
             File file = getFile(new File(minecraft.gameDirectory, Screenshot.SCREENSHOT_DIR), "", "");
             file.mkdirs();
@@ -199,15 +195,13 @@ public class ScreenshotHandler {
                         renderTarget,
                         component -> {
                             // NO-OP
-                        }
-                );
+                        });
             }
 
             Component component = Component.literal(fileName)
                     .withStyle(ChatFormatting.UNDERLINE)
                     .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE,
-                            file.getAbsolutePath()
-                    )));
+                            file.getAbsolutePath())));
             return Component.translatable("screenshot.success", component);
         } catch (Exception exception) {
             Pixelshot.LOGGER.error("Couldn't save image", exception);
@@ -217,12 +211,11 @@ public class ScreenshotHandler {
             player.setYRot(yRot);
             player.xRotO = xRotO;
             player.yRotO = yRotO;
-            this.setPanoramicMode(false);
             window.setWidth(windowWidth);
             window.setHeight(windowHeight);
-            renderTarget.destroyBuffers();
-            minecraft.levelRenderer.graphicsChanged();
-            minecraft.getMainRenderTarget().bindWrite(true);
+            renderTarget.resize(windowWidth, windowHeight);
+            this.setPanoramicMode(false);
+            renderTarget.bindWrite(true);
         }
     }
 
