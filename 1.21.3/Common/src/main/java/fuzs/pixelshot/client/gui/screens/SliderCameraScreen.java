@@ -7,6 +7,7 @@ import fuzs.puzzleslib.api.client.gui.v2.components.tooltip.TooltipBuilder;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -39,7 +40,7 @@ public class SliderCameraScreen extends AbstractCameraScreen {
                 if (component.supportsLogarithmicScale()) {
                     double value = Math.pow(10.0, this.getValue() * LOGARITHMIC_SCALE - LOGARITHMIC_SCALE) -
                             LOGARITHMIC_SCALE_POW;
-                    return value * (this.maxValue - this.minValue) + this.minValue;
+                    return Mth.lerp(value, this.minValue, this.maxValue);
                 } else {
                     return super.getScaledValue();
                 }
@@ -48,7 +49,7 @@ public class SliderCameraScreen extends AbstractCameraScreen {
             @Override
             public void setScaledValue(double value) {
                 if (component.supportsLogarithmicScale()) {
-                    value = (value - this.minValue) / (this.maxValue - this.minValue);
+                    value = Mth.inverseLerp(value, this.minValue, this.maxValue);
                     this.setValue((Math.log10(value + LOGARITHMIC_SCALE_POW) + LOGARITHMIC_SCALE) / LOGARITHMIC_SCALE);
                 } else {
                     super.setScaledValue(value);
