@@ -1,7 +1,6 @@
 package fuzs.pixelshot.client.gui.screens;
 
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
-import fuzs.puzzleslib.api.client.gui.v2.components.RangedSliderButton;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import fuzs.puzzleslib.api.client.gui.v2.components.tooltip.TooltipBuilder;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -30,29 +29,29 @@ public class SliderCameraScreen extends AbstractCameraScreen {
                 20,
                 supplier.get(),
                 component.minValue,
-                component.maxValue
-        ) {
+                component.maxValue) {
             static final double LOGARITHMIC_SCALE = 4.0;
             static final double LOGARITHMIC_SCALE_POW = Math.pow(10.0, -LOGARITHMIC_SCALE);
 
             @Override
-            public double getScaledValue() {
+            protected double getAbsoluteValue() {
                 if (component.supportsLogarithmicScale()) {
-                    double value = Math.pow(10.0, this.getValue() * LOGARITHMIC_SCALE - LOGARITHMIC_SCALE) -
+                    double value = Math.pow(10.0, this.getRelativeValue() * LOGARITHMIC_SCALE - LOGARITHMIC_SCALE) -
                             LOGARITHMIC_SCALE_POW;
                     return Mth.lerp(value, this.minValue, this.maxValue);
                 } else {
-                    return super.getScaledValue();
+                    return super.getAbsoluteValue();
                 }
             }
 
             @Override
-            public void setScaledValue(double value) {
+            protected void setAbsoluteValue(double value) {
                 if (component.supportsLogarithmicScale()) {
                     value = Mth.inverseLerp(value, this.minValue, this.maxValue);
-                    this.setValue((Math.log10(value + LOGARITHMIC_SCALE_POW) + LOGARITHMIC_SCALE) / LOGARITHMIC_SCALE);
+                    this.setRelativeValue(
+                            (Math.log10(value + LOGARITHMIC_SCALE_POW) + LOGARITHMIC_SCALE) / LOGARITHMIC_SCALE);
                 } else {
-                    super.setScaledValue(value);
+                    super.setAbsoluteValue(value);
                 }
             }
 
@@ -76,9 +75,8 @@ public class SliderCameraScreen extends AbstractCameraScreen {
                 WIDGETS_LOCATION,
                 (Button button) -> {
                     consumer.accept(supplier.get() + getCurrentIncrement());
-                    sliderButton.setScaledValue(supplier.get());
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+                    sliderButton.setAbsoluteValue(supplier.get());
+                }).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
         TooltipBuilder.create().setLines(getCurrentTooltipLines('+')).build(plusButton);
         widgets.add(plusButton);
         SpritelessImageButton minusButton = new SpritelessImageButton(this.width / 2 - 154,
@@ -90,14 +88,13 @@ public class SliderCameraScreen extends AbstractCameraScreen {
                 WIDGETS_LOCATION,
                 (Button button) -> {
                     consumer.accept(supplier.get() - getCurrentIncrement());
-                    sliderButton.setScaledValue(supplier.get());
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+                    sliderButton.setAbsoluteValue(supplier.get());
+                }).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
         TooltipBuilder.create().setLines(getCurrentTooltipLines('-')).build(minusButton);
         widgets.add(minusButton);
         widgets.add(this.getResetButton(rowHeight, () -> {
             consumer.accept(component.getDefaultValue());
-            sliderButton.setScaledValue(component.getDefaultValue());
+            sliderButton.setAbsoluteValue(component.getDefaultValue());
         }));
     }
 }
