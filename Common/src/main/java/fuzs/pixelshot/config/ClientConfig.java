@@ -39,12 +39,12 @@ public class ClientConfig implements ConfigCore {
         )
         @Config.IntRange(min = 1)
         public int imageHeight = 2160;
-        @Config(
-                description = {
-                        "Alternative high resolution screenshot rendering method, will halt the game while taking the screenshot. Supports higher resolutions than the default rendering.",
-                        "Rarely causes an unexpected indefinite client freeze while capturing. Use with caution."
-                }
-        )
+//        @Config(
+//                description = {
+//                        "Alternative high resolution screenshot rendering method, will halt the game while taking the screenshot. Supports higher resolutions than the default rendering.",
+//                        "Rarely causes an unexpected indefinite client freeze while capturing. Use with caution."
+//                }
+//        )
         public boolean tiledRendering = false;
         @Config(description = "Image width and height for panoramic screenshot tiles. Should ideally be two to the power of X.")
         @Config.IntRange(min = 1)

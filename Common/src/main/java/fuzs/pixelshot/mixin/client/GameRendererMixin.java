@@ -61,6 +61,8 @@ abstract class GameRendererMixin {
     public void isPanoramicMode(CallbackInfoReturnable<Boolean> callback) {
         // without this most render buffers are not properly resized
         // only change this method, not the GameRenderer#panoramicMode flag which also controls field of view and held item rendering
-        if (ScreenshotHandler.INSTANCE.isHugeScreenshotMode()) callback.setReturnValue(true);
+        if (ScreenshotHandler.INSTANCE.isHugeScreenshotMode()) {
+            callback.setReturnValue(true);
+        }
     }
 }
