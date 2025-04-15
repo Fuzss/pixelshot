@@ -4,6 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.client.helper.LegacyScreenshot;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
@@ -19,9 +20,12 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
+import org.lwjgl.opengl.GL12;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class ScreenshotHandler {
@@ -69,7 +73,7 @@ public class ScreenshotHandler {
                     // the vanilla method only works properly as we patch LevelRenderer::shouldShowEntityOutlines,
                     // otherwise the first tile is not resized and shows the full frame with the actual resolution
                     // still not ideal as it sometimes causes the game to freeze completely
-                    consumer.accept(minecraft.grabHugeScreenshot(minecraft.gameDirectory,
+                    consumer.accept(this.grabHugeScreenshot(minecraft,
                             windowWidth,
                             windowHeight,
                             imageWidth,
@@ -96,6 +100,52 @@ public class ScreenshotHandler {
     }
 
     /**
+     * Copied from Minecraft 1.21.4's {@code Minecraft#grabHugeScreenshot(File, int, int, int, int)}.
+     */
+    private Component grabHugeScreenshot(Minecraft minecraft, int columnWidth, int rowHeight, int width, int height) {
+        try {
+            LegacyScreenshot screenshot = new LegacyScreenshot(minecraft.gameDirectory, width, height, rowHeight);
+            float f = (float) width / (float) columnWidth;
+            float g = (float) height / (float) rowHeight;
+            float h = f > g ? f : g;
+
+            for (int i = (height - 1) / rowHeight * rowHeight; i >= 0; i -= rowHeight) {
+                ByteBuffer byteBuffer = LegacyScreenshot.allocateMemory(columnWidth * rowHeight * 3);
+                for (int j = 0; j < width; j += columnWidth) {
+                    float k = (float) (width - columnWidth) / 2.0F * 2.0F - (float) (j * 2);
+                    float l = (float) (height - rowHeight) / 2.0F * 2.0F - (float) (i * 2);
+                    k /= (float) columnWidth;
+                    l /= (float) rowHeight;
+                    minecraft.gameRenderer.renderZoomed(h, k, l);
+                    LegacyScreenshot.pixelStore(GL12.GL_PACK_ALIGNMENT, 1);
+                    LegacyScreenshot.pixelStore(GL12.GL_UNPACK_ALIGNMENT, 1);
+                    byteBuffer.clear();
+                    LegacyScreenshot.readPixels(0,
+                            0,
+                            columnWidth,
+                            rowHeight,
+                            GL12.GL_BGR,
+                            GL12.GL_UNSIGNED_BYTE,
+                            byteBuffer);
+                    screenshot.addRegion(byteBuffer, j, i, columnWidth, rowHeight);
+                }
+
+                screenshot.saveRow();
+                LegacyScreenshot.freeMemory(byteBuffer);
+            }
+
+            File file = screenshot.close();
+            Component component = Component.literal(file.getName())
+                    .withStyle(ChatFormatting.UNDERLINE)
+                    .withStyle((Style style) -> style.withClickEvent(new ClickEvent.OpenFile(file.getAbsoluteFile())));
+            return Component.translatable("screenshot.success", component);
+        } catch (Exception exception) {
+            Pixelshot.LOGGER.warn("Couldn't save screenshot", exception);
+            return Component.translatable("screenshot.failure", exception.getMessage());
+        }
+    }
+
+    /**
      * Loosely based on {@link Minecraft#grabPanoramixScreenshot(File, int, int)} to allow for changing game resolution
      * before rendering the screenshot.
      * <p>
@@ -108,7 +158,6 @@ public class ScreenshotHandler {
             window.setWidth(imageWidth);
             window.setHeight(imageHeight);
             renderTarget.resize(imageWidth, imageHeight);
-            renderTarget.bindWrite(true);
             minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
             String screenshotName = getFile(minecraft.gameDirectory, "huge_", ".png").getName();
             Screenshot.grab(minecraft.gameDirectory, screenshotName, renderTarget, consumer);
@@ -117,7 +166,6 @@ public class ScreenshotHandler {
             window.setWidth(windowWidth);
             window.setHeight(windowHeight);
             renderTarget.resize(windowWidth, windowHeight);
-            renderTarget.bindWrite(true);
         }
     }
 
@@ -181,7 +229,6 @@ public class ScreenshotHandler {
 
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
-                renderTarget.bindWrite(true);
                 minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
 
                 try {
@@ -193,15 +240,14 @@ public class ScreenshotHandler {
                 Screenshot.grab(gameDirectory,
                         fileName + File.separator + "panorama_" + i + ".png",
                         renderTarget,
-                        component -> {
+                        (Component component) -> {
                             // NO-OP
                         });
             }
 
             Component component = Component.literal(fileName)
                     .withStyle(ChatFormatting.UNDERLINE)
-                    .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE,
-                            file.getAbsolutePath())));
+                    .withStyle((Style style) -> style.withClickEvent(new ClickEvent.OpenFile(file.getAbsoluteFile())));
             return Component.translatable("screenshot.success", component);
         } catch (Exception exception) {
             Pixelshot.LOGGER.error("Couldn't save image", exception);
@@ -215,7 +261,6 @@ public class ScreenshotHandler {
             window.setHeight(windowHeight);
             renderTarget.resize(windowWidth, windowHeight);
             this.setPanoramicMode(false);
-            renderTarget.bindWrite(true);
         }
     }
 

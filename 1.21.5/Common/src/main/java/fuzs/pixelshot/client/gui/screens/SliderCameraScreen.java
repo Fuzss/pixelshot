@@ -1,8 +1,9 @@
 package fuzs.pixelshot.client.gui.screens;
 
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
+import fuzs.puzzleslib.api.client.gui.v2.components.RangedSliderButton;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
-import fuzs.puzzleslib.api.client.gui.v2.components.tooltip.TooltipBuilder;
+import fuzs.puzzleslib.api.client.gui.v2.tooltip.TooltipBuilder;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -23,7 +24,7 @@ public class SliderCameraScreen extends AbstractCameraScreen {
         super.addControlRow(component, rowHeight, widgets);
         Consumer<Float> consumer = (Float value) -> component.consumer.accept(this.handler, value);
         Supplier<Float> supplier = () -> component.supplier.apply(this.handler);
-        RangedSliderButton sliderButton = new RangedSliderButton(this.width / 2 - 130,
+        var sliderButton = new RangedSliderButton(this.width / 2 - 130,
                 rowHeight,
                 260,
                 20,
@@ -34,7 +35,7 @@ public class SliderCameraScreen extends AbstractCameraScreen {
             static final double LOGARITHMIC_SCALE_POW = Math.pow(10.0, -LOGARITHMIC_SCALE);
 
             @Override
-            protected double getAbsoluteValue() {
+            public double getAbsoluteValue() {
                 if (component.supportsLogarithmicScale()) {
                     double value = Math.pow(10.0, this.getRelativeValue() * LOGARITHMIC_SCALE - LOGARITHMIC_SCALE) -
                             LOGARITHMIC_SCALE_POW;
@@ -45,7 +46,7 @@ public class SliderCameraScreen extends AbstractCameraScreen {
             }
 
             @Override
-            protected void setAbsoluteValue(double value) {
+            public void setAbsoluteValue(double value) {
                 if (component.supportsLogarithmicScale()) {
                     value = Mth.inverseLerp(value, this.minValue, this.maxValue);
                     this.setRelativeValue(
