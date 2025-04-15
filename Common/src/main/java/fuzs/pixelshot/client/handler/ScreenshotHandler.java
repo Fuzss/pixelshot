@@ -1,8 +1,10 @@
 package fuzs.pixelshot.client.handler;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
@@ -20,8 +22,10 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import org.lwjgl.opengl.GL12;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class ScreenshotHandler {
@@ -69,7 +73,7 @@ public class ScreenshotHandler {
                     // the vanilla method only works properly as we patch LevelRenderer::shouldShowEntityOutlines,
                     // otherwise the first tile is not resized and shows the full frame with the actual resolution
                     // still not ideal as it sometimes causes the game to freeze completely
-                    consumer.accept(minecraft.grabHugeScreenshot(minecraft.gameDirectory,
+                    consumer.accept(this.grabHugeScreenshot(minecraft,
                             windowWidth,
                             windowHeight,
                             imageWidth,
@@ -93,6 +97,53 @@ public class ScreenshotHandler {
         }
 
         return EventResult.PASS;
+    }
+
+    /**
+     * @see Minecraft#grabHugeScreenshot(File, int, int, int, int)
+     */
+    private Component grabHugeScreenshot(Minecraft minecraft, int columnWidth, int rowHeight, int width, int height) {
+        try {
+            Screenshot screenshot = new Screenshot(minecraft.gameDirectory, width, height, rowHeight);
+            float f = (float) width / (float) columnWidth;
+            float g = (float) height / (float) rowHeight;
+            float h = f > g ? f : g;
+
+            for (int i = (height - 1) / rowHeight * rowHeight; i >= 0; i -= rowHeight) {
+                ByteBuffer byteBuffer = GlUtil.allocateMemory(columnWidth * rowHeight * 3);
+                for (int j = 0; j < width; j += columnWidth) {
+                    float k = (float) (width - columnWidth) / 2.0F * 2.0F - (float) (j * 2);
+                    float l = (float) (height - rowHeight) / 2.0F * 2.0F - (float) (i * 2);
+                    k /= (float) columnWidth;
+                    l /= (float) rowHeight;
+                    minecraft.gameRenderer.renderZoomed(h, k, l);
+                    byteBuffer.clear();
+                    RenderSystem.pixelStore(GL12.GL_PACK_ALIGNMENT, 1);
+                    RenderSystem.pixelStore(GL12.GL_UNPACK_ALIGNMENT, 1);
+                    RenderSystem.readPixels(0,
+                            0,
+                            columnWidth,
+                            rowHeight,
+                            GL12.GL_BGR,
+                            GL12.GL_UNSIGNED_BYTE,
+                            byteBuffer);
+                    screenshot.addRegion(byteBuffer, j, i, columnWidth, rowHeight);
+                }
+
+                screenshot.saveRow();
+                GlUtil.freeMemory(byteBuffer);
+            }
+
+            File file = screenshot.close();
+            Component component = Component.literal(file.getName())
+                    .withStyle(ChatFormatting.UNDERLINE)
+                    .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE,
+                            file.getAbsolutePath())));
+            return Component.translatable("screenshot.success", component);
+        } catch (Exception var15) {
+            Pixelshot.LOGGER.warn("Couldn't save screenshot", (Throwable) var15);
+            return Component.translatable("screenshot.failure", var15.getMessage());
+        }
     }
 
     /**
