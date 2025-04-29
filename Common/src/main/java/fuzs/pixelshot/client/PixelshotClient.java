@@ -11,6 +11,7 @@ import fuzs.puzzleslib.api.client.event.v1.entity.player.ClientPlayerNetworkEven
 import fuzs.puzzleslib.api.client.event.v1.renderer.ComputeFieldOfViewCallback;
 import fuzs.puzzleslib.api.client.event.v1.renderer.FogEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
+import fuzs.puzzleslib.api.client.event.v1.renderer.RenderBlockOverlayCallback;
 
 public class PixelshotClient implements ClientModConstructor {
 
@@ -26,6 +27,7 @@ public class PixelshotClient implements ClientModConstructor {
         ComputeFieldOfViewCallback.EVENT.register(OrthoViewHandler.INSTANCE::onComputeFieldOfView);
         FogEvents.RENDER.register(OrthoViewHandler.INSTANCE::onRenderFog);
         ClientPlayerNetworkEvents.LOGGED_IN.register(OrthoViewHandler.INSTANCE::onLoggedIn);
+        RenderBlockOverlayCallback.EVENT.register(OrthoViewHandler.INSTANCE::onRenderBlockOverlay);
         ClientTickEvents.START.register(OrthoOverlayHandler.INSTANCE::onStartClientTick);
         GameRenderEvents.AFTER.register(OrthoOverlayHandler.INSTANCE::onAfterGameRender);
         InputEvents.KEY_PRESS.register(ScreenshotHandler.INSTANCE::onKeyPress);

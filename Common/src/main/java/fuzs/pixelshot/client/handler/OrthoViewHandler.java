@@ -2,6 +2,7 @@ package fuzs.pixelshot.client.handler;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.shaders.FogShape;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
 import fuzs.pixelshot.client.helper.DirectionHelper;
@@ -9,6 +10,7 @@ import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
+import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.api.event.v1.data.MutableValue;
 import net.minecraft.client.*;
@@ -17,8 +19,10 @@ import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.Connection;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -180,6 +184,10 @@ public class OrthoViewHandler {
         }
     }
 
+    public EventResult onRenderBlockOverlay(LocalPlayer localPlayer, PoseStack poseStack, MultiBufferSource multiBufferSource, BlockState blockState) {
+        return this.isActive ? EventResult.INTERRUPT : EventResult.PASS;
+    }
+
     public void onRenderFog(GameRenderer gameRenderer, Camera camera, float partialTick, FogRenderer.FogMode fogMode, FogType fogType, MutableFloat fogStart, MutableFloat fogEnd, MutableValue<FogShape> fogShape) {
         if (this.isActive && !this.renderSky) {
             // this hides the fog, we could alternatively set the fog color with an alpha of zero via RenderSystem::setShaderFogColor
@@ -209,7 +217,7 @@ public class OrthoViewHandler {
     public void reloadCameraSettings(boolean isActive) {
         this.isActive = isActive;
         this.followPlayerView = this.nearClipping = this.renderSky = false;
-        this.renderPlayerEntity = true;
+        this.renderPlayerEntity = Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialPlayerRendering;
         this.setZoom((float) Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialZoomLevel);
         this.setXRot((float) Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialXRotation);
         this.setYRot((float) Pixelshot.CONFIG.get(ClientConfig.class).orthographicCamera.initialYRotation);
