@@ -20,6 +20,8 @@ public class ClientConfig implements ConfigCore {
         @Config(description = "Default rotation in degrees when opening the orthographic camera for the vertical axis.")
         @Config.DoubleRange(min = OrthoViewHandler.Y_ROTATION_MIN, max = OrthoViewHandler.Y_ROTATION_MAX)
         public double initialYRotation = OrthoViewHandler.Y_ROTATION_DEFAULT;
+        @Config(description = "Default setting for player rendering when opening the orthographic camera.")
+        public boolean initialPlayerRendering = true;
     }
 
     public static class HighResolutionScreenshots implements ConfigCore {
@@ -39,9 +41,9 @@ public class ClientConfig implements ConfigCore {
         )
         @Config.IntRange(min = 1)
         public int imageHeight = 2160;
-//        @Config(
+        //        @Config(
 //                description = {
-//                        "Alternative high resolution screenshot rendering method, will halt the game while taking the screenshot. Supports higher resolutions than the default rendering.",
+//                        "Alternative high-resolution screenshot rendering method will halt the game while taking the screenshot. Supports higher resolutions than the default rendering.",
 //                        "Rarely causes an unexpected indefinite client freeze while capturing. Use with caution."
 //                }
 //        )
