@@ -8,6 +8,7 @@ import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.api.client.event.v1.InputEvents;
 import fuzs.puzzleslib.api.client.event.v1.entity.player.ClientPlayerNetworkEvents;
+import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.ComputeFieldOfViewCallback;
 import fuzs.puzzleslib.api.client.event.v1.renderer.FogEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
@@ -25,11 +26,11 @@ public class PixelshotClient implements ClientModConstructor {
         GameRenderEvents.BEFORE.register(OrthoViewHandler.INSTANCE::onBeforeGameRender);
         GameRenderEvents.AFTER.register(OrthoViewHandler.INSTANCE::onAfterGameRender);
         ComputeFieldOfViewCallback.EVENT.register(OrthoViewHandler.INSTANCE::onComputeFieldOfView);
-        FogEvents.RENDER.register(OrthoViewHandler.INSTANCE::onRenderFog);
+        FogEvents.SETUP.register(OrthoViewHandler.INSTANCE::onSetupFog);
         ClientPlayerNetworkEvents.LOGGED_IN.register(OrthoViewHandler.INSTANCE::onLoggedIn);
         RenderBlockOverlayCallback.EVENT.register(OrthoViewHandler.INSTANCE::onRenderBlockOverlay);
         ClientTickEvents.START.register(OrthoOverlayHandler.INSTANCE::onStartClientTick);
-        GameRenderEvents.AFTER.register(OrthoOverlayHandler.INSTANCE::onAfterGameRender);
+        RenderGuiEvents.AFTER.register(OrthoOverlayHandler.INSTANCE::onAfterRenderGui);
         InputEvents.KEY_PRESS.register(ScreenshotHandler.INSTANCE::onKeyPress);
     }
 

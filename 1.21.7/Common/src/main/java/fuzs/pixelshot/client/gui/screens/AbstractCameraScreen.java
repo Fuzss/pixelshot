@@ -148,7 +148,7 @@ public abstract class AbstractCameraScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (!this.focusModeActive) {
-            guiGraphics.drawCenteredString(this.font, COMPONENT_TITLE, this.width / 2, this.height / 6 - 15, 0XFFFFFF);
+            guiGraphics.drawCenteredString(this.font, COMPONENT_TITLE, this.width / 2, this.height / 6 - 15, -1);
         }
     }
 

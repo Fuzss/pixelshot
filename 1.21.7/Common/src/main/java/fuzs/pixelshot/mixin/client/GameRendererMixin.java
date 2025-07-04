@@ -57,7 +57,7 @@ abstract class GameRendererMixin {
         }
     }
 
-    @Inject(method = "isPanoramicMode", at = @At("HEAD"), cancellable = true)
+    @Inject(method = {"isPanoramicMode", "renderItemInHand"}, at = @At("HEAD"), cancellable = true)
     public void isPanoramicMode(CallbackInfoReturnable<Boolean> callback) {
         // without this most render buffers are not properly resized
         // only change this method, not the GameRenderer#panoramicMode flag which also controls field of view and held item rendering
