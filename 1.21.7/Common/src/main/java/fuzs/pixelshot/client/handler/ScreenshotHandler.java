@@ -49,10 +49,7 @@ public class ScreenshotHandler {
 
     private void setHugeScreenshotMode(boolean hugeScreenshotMode) {
         this.hugeScreenshotMode = hugeScreenshotMode;
-        GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-        gameRenderer.setRenderBlockOutline(!hugeScreenshotMode);
-        // need to manually disable held item rendering, panoramic mode does that on its own
-        gameRenderer.setRenderHand(!hugeScreenshotMode);
+        Minecraft.getInstance().gameRenderer.setRenderBlockOutline(!hugeScreenshotMode);
     }
 
     public EventResult onKeyPress(int keyCode, int scanCode, int action, int modifiers) {
@@ -65,7 +62,7 @@ public class ScreenshotHandler {
                 int windowHeight = minecraft.getWindow().getHeight();
                 int imageWidth = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.imageWidth;
                 int imageHeight = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.imageHeight;
-                Consumer<Component> consumer = component -> minecraft.execute(() -> minecraft.gui.getChat()
+                Consumer<Component> consumer = (Component component) -> minecraft.execute(() -> minecraft.gui.getChat()
                         .addMessage(component));
 
                 this.setHugeScreenshotMode(true);
@@ -116,7 +113,7 @@ public class ScreenshotHandler {
                     float l = (float) (height - rowHeight) / 2.0F * 2.0F - (float) (i * 2);
                     k /= (float) columnWidth;
                     l /= (float) rowHeight;
-                    minecraft.gameRenderer.renderZoomed(h, k, l);
+//                    minecraft.gameRenderer.renderZoomed(h, k, l);
                     LegacyScreenshot.pixelStore(GL12.GL_PACK_ALIGNMENT, 1);
                     LegacyScreenshot.pixelStore(GL12.GL_UNPACK_ALIGNMENT, 1);
                     byteBuffer.clear();
@@ -160,7 +157,7 @@ public class ScreenshotHandler {
             renderTarget.resize(imageWidth, imageHeight);
             minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
             String screenshotName = getFile(minecraft.gameDirectory, "huge_", ".png").getName();
-            Screenshot.grab(minecraft.gameDirectory, screenshotName, renderTarget, consumer);
+            Screenshot.grab(minecraft.gameDirectory, screenshotName, renderTarget, 1, consumer);
             consumer.accept(COMPONENT_SCREENSHOT_TAKE);
         } finally {
             window.setWidth(windowWidth);
@@ -239,7 +236,7 @@ public class ScreenshotHandler {
 
                 Screenshot.grab(gameDirectory,
                         fileName + File.separator + "panorama_" + i + ".png",
-                        renderTarget,
+                        renderTarget, 1,
                         (Component component) -> {
                             // NO-OP
                         });

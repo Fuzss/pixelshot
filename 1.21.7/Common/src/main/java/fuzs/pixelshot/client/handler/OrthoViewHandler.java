@@ -1,7 +1,6 @@
 package fuzs.pixelshot.client.handler;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
@@ -12,18 +11,19 @@ import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
-import fuzs.puzzleslib.api.event.v1.data.MutableValue;
 import net.minecraft.client.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.fog.FogData;
+import net.minecraft.client.renderer.fog.environment.FogEnvironment;
 import net.minecraft.network.Connection;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FogType;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -188,11 +188,10 @@ public class OrthoViewHandler {
         return this.isActive ? EventResult.INTERRUPT : EventResult.PASS;
     }
 
-    public void onRenderFog(GameRenderer gameRenderer, Camera camera, float partialTick, FogRenderer.FogMode fogMode, FogType fogType, MutableFloat fogStart, MutableFloat fogEnd, MutableValue<FogShape> fogShape) {
+    public void onSetupFog(Camera camera, float partialTick, @Nullable FogEnvironment fogEnvironment, FogType fogType, FogData fogData) {
         if (this.isActive && !this.renderSky) {
             // this hides the fog, we could alternatively set the fog color with an alpha of zero via RenderSystem::setShaderFogColor
-            fogStart.accept(Float.MAX_VALUE);
-            fogEnd.accept(Float.MAX_VALUE);
+            fogData.environmentalStart = fogData.renderDistanceStart = fogData.environmentalEnd = fogData.renderDistanceEnd = fogData.skyEnd = fogData.cloudEnd = Float.MAX_VALUE;
         }
     }
 
