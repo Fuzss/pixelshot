@@ -7,7 +7,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -60,7 +59,7 @@ public class OrthoOverlayHandler {
         return newValue - oldValue > 0.0F ? POSITIVE_COLOR : NEGATIVE_COLOR;
     }
 
-    public void onAfterRenderGui(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public void onAfterRenderGui(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive() && this.overlayTicks > 0) {
             Minecraft minecraft = Minecraft.getInstance();
             Entity entity = minecraft.gameRenderer.getMainCamera().getEntity();
