@@ -16,6 +16,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -52,19 +53,18 @@ public class ScreenshotHandler {
         Minecraft.getInstance().gameRenderer.setRenderBlockOutline(!hugeScreenshotMode);
     }
 
-    public EventResult onKeyPress(int keyCode, int scanCode, int action, int modifiers) {
+    public EventResult onKeyPress(KeyEvent keyEvent, int action) {
         Minecraft minecraft = Minecraft.getInstance();
         // don't allow this when screen is open, as it does not render the screen layer anyway
         // also means we do not have to deal with the keybindings screen when checking key mapping matches
         if (action == InputConstants.PRESS && minecraft.screen == null) {
-            if (KEY_HIGH_RESOLUTION_SCREENSHOT.matches(keyCode, scanCode)) {
+            if (KeyMappingHelper.isKeyActiveAndMatches(KEY_HIGH_RESOLUTION_SCREENSHOT, keyEvent)) {
                 int windowWidth = minecraft.getWindow().getWidth();
                 int windowHeight = minecraft.getWindow().getHeight();
                 int imageWidth = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.imageWidth;
                 int imageHeight = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.imageHeight;
                 Consumer<Component> consumer = (Component component) -> minecraft.execute(() -> minecraft.gui.getChat()
                         .addMessage(component));
-
                 this.setHugeScreenshotMode(true);
                 if (Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.tiledRendering) {
                     // the vanilla method only works properly as we patch LevelRenderer::shouldShowEntityOutlines,
@@ -82,7 +82,8 @@ public class ScreenshotHandler {
                 this.setHugeScreenshotMode(false);
             }
 
-            if (KEY_PANORAMIC_SCREENSHOT.matches(keyCode, scanCode) && !OrthoViewHandler.INSTANCE.isActive()) {
+            if (KeyMappingHelper.isKeyActiveAndMatches(KEY_PANORAMIC_SCREENSHOT, keyEvent)
+                    && !OrthoViewHandler.INSTANCE.isActive()) {
                 int panoramicResolution = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.panoramicResolution;
                 Component component = this.grabPanoramicScreenshot(minecraft,
                         minecraft.gameDirectory,
@@ -236,7 +237,8 @@ public class ScreenshotHandler {
 
                 Screenshot.grab(gameDirectory,
                         fileName + File.separator + "panorama_" + i + ".png",
-                        renderTarget, 1,
+                        renderTarget,
+                        1,
                         (Component component) -> {
                             // NO-OP
                         });

@@ -12,6 +12,8 @@ abstract class LevelRendererMixin {
 
     @Inject(method = "addCloudsPass", at = @At("HEAD"), cancellable = true)
     public void addCloudsPass(CallbackInfo callback) {
-        if (OrthoViewHandler.INSTANCE.isActive()) callback.cancel();
+        if (OrthoViewHandler.INSTANCE.isActive()) {
+            callback.cancel();
+        }
     }
 }

@@ -82,6 +82,7 @@ public class OrthoOverlayHandler {
         } else {
             xRot = orthoViewHandler.getXRot();
         }
+
         lines.add(this.getDisplayEntry(KEY_X_ROTATION, Mth.wrapDegrees(xRot), this.xRotColor));
         float yRot;
         if (orthoViewHandler.followPlayerView()) {
@@ -89,6 +90,7 @@ public class OrthoOverlayHandler {
         } else {
             yRot = orthoViewHandler.getYRot();
         }
+
         lines.add(this.getDisplayEntry(KEY_Y_ROTATION, Mth.wrapDegrees(yRot), this.yRotColor));
         return lines;
     }
@@ -96,7 +98,7 @@ public class OrthoOverlayHandler {
     private String getDisplayEntry(String translationKey, float value, ChatFormatting color) {
         Component component = Component.translatable(translationKey,
                 Component.literal(("%." + OrthoViewHandler.DECIMAL_PLACES + "f").formatted(value)).withStyle(color));
-        return ComponentHelper.toString(component);
+        return ComponentHelper.getAsString(component);
     }
 
     /**
@@ -105,7 +107,6 @@ public class OrthoOverlayHandler {
      * support for transparency.
      */
     private void renderLines(Font font, GuiGraphics guiGraphics, List<String> lines, float alpha, boolean leftSide) {
-
         for (int j = 0; j < lines.size(); ++j) {
             String s = lines.get(j);
             if (!Strings.isNullOrEmpty(s)) {

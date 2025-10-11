@@ -1,5 +1,5 @@
 {
-  "key.categories.pixelshot": "Pixelshot",
+  "key.category.pixelshot.main": "Pixelshot",
   "key.pixelshot.high_resolution_screenshot": "Take High Resolution Screenshot",
   "key.pixelshot.open_menu": "Open Camera Configuration",
   "key.pixelshot.orthographic_camera": "Toggle Orthographic Camera",
