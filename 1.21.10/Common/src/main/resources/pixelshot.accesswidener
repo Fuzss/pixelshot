@@ -1,0 +1,4 @@
+accessWidener   v2  named
+accessible  method  com/mojang/blaze3d/platform/Window  onFramebufferResize (JII)V
+accessible  field   net/minecraft/client/Camera detached    Z
+accessible  method  net/minecraft/client/Camera setRotation (FF)V
