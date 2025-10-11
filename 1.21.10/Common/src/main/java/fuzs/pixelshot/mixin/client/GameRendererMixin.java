@@ -1,7 +1,5 @@
 package fuzs.pixelshot.mixin.client;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.pixelshot.client.handler.ScreenshotHandler;
 import net.minecraft.client.DeltaTracker;
@@ -14,7 +12,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
@@ -23,11 +20,10 @@ abstract class GameRendererMixin {
     @Final
     Minecraft minecraft;
 
-    @ModifyVariable(
-            method = "renderLevel", at = @At(
-            value = "INVOKE", target = "Lnet/minecraft/client/Options;fov()Lnet/minecraft/client/OptionInstance;"
-    ), ordinal = 0
-    )
+    @ModifyVariable(method = "renderLevel",
+            at = @At(value = "FIELD",
+                    target = "Lnet/minecraft/client/renderer/GameRenderer;levelProjectionMatrixBuffer:Lnet/minecraft/client/renderer/PerspectiveProjectionMatrixBuffer;"),
+            ordinal = 0)
     public Matrix4f renderLevel$0(Matrix4f matrix4f, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
             return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft,
@@ -38,22 +34,10 @@ abstract class GameRendererMixin {
         }
     }
 
-    @WrapOperation(
-            method = "renderLevel", at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(F)Lorg/joml/Matrix4f;"
-    ), slice = @Slice(
-            from = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/Options;fov()Lnet/minecraft/client/OptionInstance;"
-            )
-    )
-    )
-    public Matrix4f renderLevel$1(GameRenderer gameRenderer, float fov, Operation<Matrix4f> operation) {
+    @Inject(method = "getProjectionMatrixForCulling", at = @At("HEAD"), cancellable = true)
+    private void getProjectionMatrixForCulling(CallbackInfoReturnable<Matrix4f> callback) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
-            return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft, 1.0F, true);
-        } else {
-            return operation.call(gameRenderer, fov);
+            callback.setReturnValue(OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft, 1.0F, true));
         }
     }
 

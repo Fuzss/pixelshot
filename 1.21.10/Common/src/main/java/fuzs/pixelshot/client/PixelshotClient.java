@@ -5,8 +5,8 @@ import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.pixelshot.client.handler.ScreenshotHandler;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
+import fuzs.puzzleslib.api.client.event.v1.ClientInputEvents;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
-import fuzs.puzzleslib.api.client.event.v1.InputEvents;
 import fuzs.puzzleslib.api.client.event.v1.entity.player.ClientPlayerNetworkEvents;
 import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.ComputeFieldOfViewCallback;
@@ -31,7 +31,7 @@ public class PixelshotClient implements ClientModConstructor {
         RenderBlockOverlayCallback.EVENT.register(OrthoViewHandler.INSTANCE::onRenderBlockOverlay);
         ClientTickEvents.START.register(OrthoOverlayHandler.INSTANCE::onStartClientTick);
         RenderGuiEvents.AFTER.register(OrthoOverlayHandler.INSTANCE::onAfterRenderGui);
-        InputEvents.KEY_PRESS.register(ScreenshotHandler.INSTANCE::onKeyPress);
+        ClientInputEvents.KEY_PRESS.register(ScreenshotHandler.INSTANCE::onKeyPress);
     }
 
     @Override

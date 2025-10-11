@@ -5,6 +5,7 @@ import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
+import fuzs.puzzleslib.api.util.v1.CommonHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -72,23 +73,19 @@ public abstract class AbstractCameraScreen extends Screen {
                     this.handler.flipFollowPlayerView();
                     button.setMessage(getOptionComponent(KEY_FOLLOW_VIEW, this.handler.followPlayerView()));
                     rotationWidgets.forEach(abstractWidget -> abstractWidget.active = !this.handler.followPlayerView());
-                }
-        ).bounds(this.width / 2 - 154, this.height / 6 + 100, 150, 20).build());
+                }).bounds(this.width / 2 - 154, this.height / 6 + 100, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_NEAR_CLIPPING, this.handler.nearClipping()),
                 (Button button) -> {
                     this.handler.flipNearClipping();
                     button.setMessage(getOptionComponent(KEY_NEAR_CLIPPING, this.handler.nearClipping()));
-                }
-        ).bounds(this.width / 2 + 4, this.height / 6 + 100, 150, 20).build());
+                }).bounds(this.width / 2 + 4, this.height / 6 + 100, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_RENDER_SKY, this.handler.renderSky()),
                 (Button button) -> {
                     this.handler.flipRenderSky();
                     button.setMessage(getOptionComponent(KEY_RENDER_SKY, this.handler.renderSky()));
-                }
-        ).bounds(this.width / 2 - 154, this.height / 6 + 126, 150, 20).build());
+                }).bounds(this.width / 2 - 154, this.height / 6 + 126, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_RENDER_PLAYER,
-                this.handler.renderPlayerEntity()
-        ), (Button button) -> {
+                this.handler.renderPlayerEntity()), (Button button) -> {
             this.handler.flipRenderPlayerEntity();
             button.setMessage(getOptionComponent(KEY_RENDER_PLAYER, this.handler.renderPlayerEntity()));
         }).bounds(this.width / 2 + 4, this.height / 6 + 126, 150, 20).build());
@@ -117,13 +114,12 @@ public abstract class AbstractCameraScreen extends Screen {
                     this.focusModeActive = !this.focusModeActive;
                     ((SpritelessImageButton) button).xTexStart = (this.focusModeActive ? 5 : 4) * 20;
                     for (GuiEventListener guiEventListener : this.children()) {
-                        if (guiEventListener instanceof AbstractWidget abstractWidget &&
-                                !widgets.contains(abstractWidget)) {
+                        if (guiEventListener instanceof AbstractWidget abstractWidget && !widgets.contains(
+                                abstractWidget)) {
                             abstractWidget.visible = !this.focusModeActive;
                         }
                     }
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT));
+                }).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT));
     }
 
     AbstractWidget getResetButton(int rowHeight, Runnable runnable) {
@@ -136,8 +132,7 @@ public abstract class AbstractCameraScreen extends Screen {
                 WIDGETS_LOCATION,
                 (Button button) -> {
                     runnable.run();
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+                }).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
     }
 
     static Component getOptionComponent(String translationKey, boolean onOffState) {
@@ -169,9 +164,9 @@ public abstract class AbstractCameraScreen extends Screen {
     }
 
     static float getCurrentIncrement() {
-        if (Screen.hasShiftDown()) {
+        if (CommonHelper.hasShiftDown()) {
             return LARGE_INCREMENT;
-        } else if (Screen.hasAltDown()) {
+        } else if (CommonHelper.hasAltDown()) {
             return SMALL_INCREMENT;
         } else {
             return DEFAULT_INCREMENT;
@@ -206,20 +201,17 @@ public abstract class AbstractCameraScreen extends Screen {
                 OrthoViewHandler.ZOOM_MIN,
                 OrthoViewHandler.ZOOM_MAX,
                 OrthoViewHandler::getZoom,
-                OrthoViewHandler::setZoom
-        ),
+                OrthoViewHandler::setZoom),
         X_ROTATION(OrthoOverlayHandler.KEY_X_ROTATION,
                 OrthoViewHandler.X_ROTATION_MIN,
                 OrthoViewHandler.X_ROTATION_MAX,
                 OrthoViewHandler::getXRot,
-                OrthoViewHandler::setXRot
-        ),
+                OrthoViewHandler::setXRot),
         Y_ROTATION(OrthoOverlayHandler.KEY_Y_ROTATION,
                 OrthoViewHandler.Y_ROTATION_MIN,
                 OrthoViewHandler.Y_ROTATION_MAX,
                 OrthoViewHandler::getYRot,
-                OrthoViewHandler::setYRot
-        );
+                OrthoViewHandler::setYRot);
 
         static final OrthoComponent[] VALUES = values();
 

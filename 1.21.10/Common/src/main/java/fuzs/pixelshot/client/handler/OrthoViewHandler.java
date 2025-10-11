@@ -11,8 +11,8 @@ import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
+import fuzs.puzzleslib.api.util.v1.CommonHelper;
 import net.minecraft.client.*;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -117,7 +117,7 @@ public class OrthoViewHandler {
         if (this.freezeControls) return;
 
         while (KEY_TOGGLE_VIEW.consumeClick()) {
-            if (Screen.hasAltDown()) {
+            if (CommonHelper.hasAltDown()) {
                 this.reloadCameraSettings(true);
             } else {
                 this.isActive = !this.isActive;
@@ -125,7 +125,7 @@ public class OrthoViewHandler {
         }
         while (KEY_SWITCH_PRESET.consumeClick()) {
             if (this.isActive && !this.followPlayerView) {
-                Vector3f vector3f = DirectionHelper.cycle(this.xRot, this.yRot, !Screen.hasAltDown());
+                Vector3f vector3f = DirectionHelper.cycle(this.xRot, this.yRot, !CommonHelper.hasAltDown());
                 this.setXRot(vector3f.x());
                 this.setYRot(vector3f.z());
             }
