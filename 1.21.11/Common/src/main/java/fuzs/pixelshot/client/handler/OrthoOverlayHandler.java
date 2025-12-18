@@ -62,7 +62,7 @@ public class OrthoOverlayHandler {
     public void onAfterRenderGui(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive() && this.overlayTicks > 0) {
             Minecraft minecraft = Minecraft.getInstance();
-            Entity entity = minecraft.gameRenderer.getMainCamera().getEntity();
+            Entity entity = minecraft.gameRenderer.getMainCamera().entity();
             List<String> overlayInformation = this.getOverlayInformation(entity);
             float alpha = Mth.clamp(
                     (this.overlayTicks - deltaTracker.getGameTimeDeltaPartialTick(false)) / OVERLAY_FADE_START,

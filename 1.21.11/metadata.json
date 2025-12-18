@@ -1,0 +1,63 @@
+{
+    "mod": {
+        "id": "pixelshot",
+        "group": "fuzs.pixelshot",
+        "name": "Pixelshot",
+        "version": "21.11.0",
+        "authors": [
+            "BarracudaATA",
+            "Fuzs",
+            "Pascallj"
+        ],
+        "description": "High-resolution screenshots, and an orthographic camera all in one. A continuation of Mineshot by BarracudaATA.",
+        "license": "MPL-2.0"
+    },
+    "dependencies": [
+        {
+            "name": "fabricapi",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "forgeconfigapiport",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "puzzleslib",
+            "type": "required",
+            "platforms": [
+                "fabric",
+                "neoforge"
+            ]
+        }
+    ],
+    "links": [
+        {
+            "name": "github",
+            "slug": "pixelshot"
+        },
+        {
+            "name": "curseforge",
+            "slug": "pixelshot",
+            "id": "1369180"
+        },
+        {
+            "name": "modrinth",
+            "slug": "pixelshot",
+            "id": "MUoQGQVU"
+        }
+    ],
+    "environments": {
+        "client": "required",
+        "server": "unsupported"
+    },
+    "platforms": [
+        "fabric",
+        "neoforge"
+    ]
+}
