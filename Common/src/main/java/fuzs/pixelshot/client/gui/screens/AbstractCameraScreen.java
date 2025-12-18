@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class AbstractCameraScreen extends Screen {
-    static final ResourceLocation WIDGETS_LOCATION = Pixelshot.id("textures/gui/widgets.png");
+    static final Identifier WIDGETS_LOCATION = Pixelshot.id("textures/gui/widgets.png");
     static final Component COMPONENT_ON = Component.empty()
             .append(CommonComponents.OPTION_ON)
             .withStyle(ChatFormatting.GREEN);

@@ -2,7 +2,8 @@ package fuzs.pixelshot.client.helper;
 
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.Util;
+import net.minecraft.client.Screenshot;
+import net.minecraft.util.Util;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
@@ -99,5 +100,24 @@ public class LegacyScreenshot {
     public File close() throws IOException {
         this.outputStream.close();
         return this.file;
+    }
+
+    /**
+     * Adjusted to allow for a custom file name.
+     *
+     * @see Screenshot#getFile(File)
+     */
+    public static File getFile(File gameDirectory, String fileNamePrefix, String fileExtension) {
+        String fileName = fileNamePrefix + Util.getFilenameFormattedDateTime();
+        int i = 1;
+
+        while (true) {
+            File file = new File(gameDirectory, fileName + (i == 1 ? "" : "_" + i) + fileExtension);
+            if (!file.exists()) {
+                return file;
+            }
+
+            ++i;
+        }
     }
 }

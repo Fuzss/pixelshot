@@ -6,6 +6,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.joml.Matrix4f;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,12 +19,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class GameRendererMixin {
     @Shadow
     @Final
-    Minecraft minecraft;
+    private Minecraft minecraft;
 
     @ModifyVariable(method = "renderLevel",
-            at = @At(value = "FIELD",
-                    target = "Lnet/minecraft/client/renderer/GameRenderer;levelProjectionMatrixBuffer:Lnet/minecraft/client/renderer/PerspectiveProjectionMatrixBuffer;"),
-            ordinal = 0)
+                    at = @At(value = "FIELD",
+                             target = "Lnet/minecraft/client/renderer/GameRenderer;levelProjectionMatrixBuffer:Lnet/minecraft/client/renderer/PerspectiveProjectionMatrixBuffer;",
+                             opcode = Opcodes.GETFIELD),
+                    ordinal = 0)
     public Matrix4f renderLevel$0(Matrix4f matrix4f, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
             return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft,
@@ -41,7 +43,7 @@ abstract class GameRendererMixin {
         }
     }
 
-    @Inject(method = {"isPanoramicMode", "renderItemInHand"}, at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isPanoramicMode", at = @At("HEAD"), cancellable = true)
     public void isPanoramicMode(CallbackInfoReturnable<Boolean> callback) {
         // without this most render buffers are not properly resized
         // only change this method, not the GameRenderer#panoramicMode flag which also controls field of view and held item rendering

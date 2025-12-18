@@ -19,13 +19,14 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.environment.FogEnvironment;
+import net.minecraft.client.resources.model.MaterialSet;
 import net.minecraft.network.Connection;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FogType;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 public class OrthoViewHandler {
     public static final OrthoViewHandler INSTANCE = new OrthoViewHandler();
@@ -94,18 +95,19 @@ public class OrthoViewHandler {
     }
 
     public void onStartClientTick(Minecraft minecraft) {
-
         if (this.oldZoom != this.zoom) {
             OrthoOverlayHandler.INSTANCE.setZoomOverlay(this.zoom, this.oldZoom);
             if (this.oldZoom < this.zoom) {
                 Minecraft.getInstance().levelRenderer.needsUpdate();
             }
         }
+
         if (this.oldXRot != this.xRot) {
             OrthoOverlayHandler.INSTANCE.setXRotOverlay(this.xRot, this.oldXRot);
         } else {
             this.setXRot(Mth.wrapDegrees(this.xRot));
         }
+
         if (this.oldYRot != this.yRot) {
             OrthoOverlayHandler.INSTANCE.setYRotOverlay(this.yRot, this.oldYRot);
         } else {
@@ -113,8 +115,9 @@ public class OrthoViewHandler {
         }
 
         this.setOldValues();
-
-        if (this.freezeControls) return;
+        if (this.freezeControls) {
+            return;
+        }
 
         while (KEY_TOGGLE_VIEW.consumeClick()) {
             if (CommonHelper.hasAltDown()) {
@@ -123,6 +126,7 @@ public class OrthoViewHandler {
                 this.isActive = !this.isActive;
             }
         }
+
         while (KEY_SWITCH_PRESET.consumeClick()) {
             if (this.isActive && !this.followPlayerView) {
                 Vector3f vector3f = DirectionHelper.cycle(this.xRot, this.yRot, !CommonHelper.hasAltDown());
@@ -130,6 +134,7 @@ public class OrthoViewHandler {
                 this.setYRot(vector3f.z());
             }
         }
+
         while (KEY_OPEN_MENU.consumeClick()) {
             if (this.isActive) {
                 minecraft.setScreen(AbstractCameraScreen.openScreen());
@@ -140,29 +145,35 @@ public class OrthoViewHandler {
     }
 
     private void updateZoomAndRotation() {
-
-        if (!this.isActive) return;
+        if (!this.isActive) {
+            return;
+        }
 
         if (KEY_ZOOM_IN.isDown()) {
             this.setZoom(this.zoom / (1.0F + ZOOM_STEP * STEP_MULTIPLIER));
         }
+
         if (KEY_ZOOM_OUT.isDown()) {
             this.setZoom(this.zoom * (1.0F + ZOOM_STEP * STEP_MULTIPLIER));
         }
 
-        if (this.followPlayerView) return;
+        if (this.followPlayerView) {
+            return;
+        }
 
         float rotationStep = Mth.clamp(this.zoom, ROTATION_STEP_MIN, ROTATION_STEP_MAX) * STEP_MULTIPLIER;
-
         if (KEY_ROTATE_LEFT.isDown()) {
             this.setYRot(this.yRot + rotationStep);
         }
+
         if (KEY_ROTATE_RIGHT.isDown()) {
             this.setYRot(this.yRot - rotationStep);
         }
+
         if (KEY_ROTATE_UP.isDown()) {
             this.setXRot(this.xRot + rotationStep);
         }
+
         if (KEY_ROTATE_DOWN.isDown()) {
             this.setXRot(this.xRot - rotationStep);
         }
@@ -184,7 +195,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public EventResult onRenderBlockOverlay(LocalPlayer localPlayer, PoseStack poseStack, MultiBufferSource multiBufferSource, BlockState blockState) {
+    public EventResult onRenderBlockOverlay(LocalPlayer player, PoseStack poseStack, MultiBufferSource bufferSource, BlockState blockState, MaterialSet materialSet) {
         return this.isActive ? EventResult.INTERRUPT : EventResult.PASS;
     }
 
@@ -203,13 +214,14 @@ public class OrthoViewHandler {
             if (!this.followPlayerView) {
                 camera.setRotation(this.getYRot(partialTick), this.getXRot(partialTick));
             }
+
             if (this.renderPlayerEntity) {
                 camera.detached = true;
             }
         }
     }
 
-    public void onLoggedIn(LocalPlayer player, MultiPlayerGameMode multiPlayerGameMode, Connection connection) {
+    public void onPlayerJoin(LocalPlayer player, MultiPlayerGameMode multiPlayerGameMode, Connection connection) {
         this.reloadCameraSettings(false);
     }
 

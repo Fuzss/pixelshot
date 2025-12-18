@@ -27,7 +27,7 @@ public class PixelshotClient implements ClientModConstructor {
         GameRenderEvents.AFTER.register(OrthoViewHandler.INSTANCE::onAfterGameRender);
         ComputeFieldOfViewCallback.EVENT.register(OrthoViewHandler.INSTANCE::onComputeFieldOfView);
         FogEvents.SETUP.register(OrthoViewHandler.INSTANCE::onSetupFog);
-        ClientPlayerNetworkEvents.LOGGED_IN.register(OrthoViewHandler.INSTANCE::onLoggedIn);
+        ClientPlayerNetworkEvents.JOIN.register(OrthoViewHandler.INSTANCE::onPlayerJoin);
         RenderBlockOverlayCallback.EVENT.register(OrthoViewHandler.INSTANCE::onRenderBlockOverlay);
         ClientTickEvents.START.register(OrthoOverlayHandler.INSTANCE::onStartClientTick);
         RenderGuiEvents.AFTER.register(OrthoOverlayHandler.INSTANCE::onAfterRenderGui);
