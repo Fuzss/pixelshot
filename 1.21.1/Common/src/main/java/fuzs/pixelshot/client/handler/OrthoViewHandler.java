@@ -42,31 +42,24 @@ public class OrthoViewHandler {
     public static final float FAR_CLIPPING_DISTANCE = 1000.0F;
     private static final float STEP_MULTIPLIER = 0.25F;
     static final int DECIMAL_PLACES = 1;
-    public static final KeyMapping KEY_TOGGLE_VIEW = KeyMappingHelper.registerKeyMapping(Pixelshot.id(
-            "orthographic_camera"), InputConstants.KEY_F7);
-    public static final KeyMapping KEY_OPEN_MENU = KeyMappingHelper.registerKeyMapping(Pixelshot.id("open_menu"),
-            InputConstants.KEY_F8
-    );
-    public static final KeyMapping KEY_ZOOM_IN = KeyMappingHelper.registerKeyMapping(Pixelshot.id("zoom_in"),
-            InputConstants.KEY_RBRACKET
-    );
-    public static final KeyMapping KEY_ZOOM_OUT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("zoom_out"),
-            InputConstants.KEY_BACKSLASH
-    );
-    public static final KeyMapping KEY_ROTATE_LEFT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_left"),
-            InputConstants.KEY_LEFT
-    );
-    public static final KeyMapping KEY_ROTATE_RIGHT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_right"),
-            InputConstants.KEY_RIGHT
-    );
-    public static final KeyMapping KEY_ROTATE_UP = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_up"),
-            InputConstants.KEY_UP
-    );
-    public static final KeyMapping KEY_ROTATE_DOWN = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_down"),
-            InputConstants.KEY_DOWN
-    );
-    public static final KeyMapping KEY_SWITCH_PRESET = KeyMappingHelper.registerUnboundKeyMapping(Pixelshot.id(
-            "switch_preset"));
+    public static final KeyMapping KEY_TOGGLE_VIEW = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id(
+            "orthographic_camera").toLanguageKey()), InputConstants.KEY_F7);
+    public static final KeyMapping KEY_OPEN_MENU = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id(
+            "open_menu").toLanguageKey()), InputConstants.KEY_F8);
+    public static final KeyMapping KEY_ZOOM_IN = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id("zoom_in")
+            .toLanguageKey()), InputConstants.KEY_RBRACKET);
+    public static final KeyMapping KEY_ZOOM_OUT = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id(
+            "zoom_out").toLanguageKey()), InputConstants.KEY_BACKSLASH);
+    public static final KeyMapping KEY_ROTATE_LEFT = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id(
+            "rotate_left").toLanguageKey()), InputConstants.KEY_LEFT);
+    public static final KeyMapping KEY_ROTATE_RIGHT = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id(
+            "rotate_right").toLanguageKey()), InputConstants.KEY_RIGHT);
+    public static final KeyMapping KEY_ROTATE_UP = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id(
+            "rotate_up").toLanguageKey()), InputConstants.KEY_UP);
+    public static final KeyMapping KEY_ROTATE_DOWN = KeyMappingHelper.registerKeyMapping(Pixelshot.id(Pixelshot.id(
+            "rotate_down").toLanguageKey()), InputConstants.KEY_DOWN);
+    public static final KeyMapping KEY_SWITCH_PRESET = KeyMappingHelper.registerUnboundKeyMapping(Pixelshot.id(Pixelshot.id(
+            "switch_preset").toLanguageKey()));
 
     private float zoom;
     private float xRot;
@@ -316,8 +309,8 @@ public class OrthoViewHandler {
                 width,
                 -height,
                 height,
-                !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE, FAR_CLIPPING_DISTANCE
-        );
+                !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE,
+                FAR_CLIPPING_DISTANCE);
     }
 
     public static float roundValue(float value) {

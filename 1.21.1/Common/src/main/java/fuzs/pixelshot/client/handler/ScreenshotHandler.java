@@ -29,9 +29,9 @@ public class ScreenshotHandler {
     public static final ScreenshotHandler INSTANCE = new ScreenshotHandler();
     public static final MutableComponent COMPONENT_SCREENSHOT_TAKE = Component.translatable("screenshot.take");
     public static final KeyMapping KEY_HIGH_RESOLUTION_SCREENSHOT = KeyMappingHelper.registerKeyMapping(Pixelshot.id(
-            "high_resolution_screenshot"), InputConstants.KEY_F9);
+            Pixelshot.id("high_resolution_screenshot").toLanguageKey()), InputConstants.KEY_F9);
     public static final KeyMapping KEY_PANORAMIC_SCREENSHOT = KeyMappingHelper.registerUnboundKeyMapping(Pixelshot.id(
-            "panoramic_screenshot"));
+            Pixelshot.id("panoramic_screenshot").toLanguageKey()));
 
     private boolean hugeScreenshotMode;
 
@@ -74,8 +74,7 @@ public class ScreenshotHandler {
                             windowWidth,
                             windowHeight,
                             imageWidth,
-                            imageHeight
-                    ));
+                            imageHeight));
                 } else {
                     this.grabHugeScreenshot(minecraft, windowWidth, windowHeight, imageWidth, imageHeight, consumer);
                 }
@@ -88,8 +87,7 @@ public class ScreenshotHandler {
                 Component component = this.grabPanoramicScreenshot(minecraft,
                         minecraft.gameDirectory,
                         panoramicResolution,
-                        panoramicResolution
-                );
+                        panoramicResolution);
 
                 minecraft.execute(() -> minecraft.gui.getChat().addMessage(component));
             }
@@ -199,15 +197,13 @@ public class ScreenshotHandler {
                         renderTarget,
                         component -> {
                             // NO-OP
-                        }
-                );
+                        });
             }
 
             Component component = Component.literal(fileName)
                     .withStyle(ChatFormatting.UNDERLINE)
                     .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE,
-                            file.getAbsolutePath()
-                    )));
+                            file.getAbsolutePath())));
             return Component.translatable("screenshot.success", component);
         } catch (Exception exception) {
             Pixelshot.LOGGER.error("Couldn't save image", exception);
