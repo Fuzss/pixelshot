@@ -8,6 +8,6 @@ dependencies {
 
 multiloader {
     mixins {
-        clientMixin("FrustumMixin", "GameRendererMixin", "LevelRendererMixin", "MinecraftMixin")
+        clientMixin("CameraMixin", "FrustumMixin", "GameRendererMixin", "LevelRendererMixin", "MinecraftMixin")
     }
 }

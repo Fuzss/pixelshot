@@ -6,10 +6,10 @@ import com.mojang.blaze3d.platform.Window;
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.helper.LegacyScreenshot;
 import fuzs.pixelshot.config.ClientConfig;
-import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.common.api.client.core.v1.context.KeyMappingsContext;
+import fuzs.puzzleslib.common.api.client.key.v1.KeyActivationContext;
+import fuzs.puzzleslib.common.api.client.key.v1.KeyMappingHelper;
+import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
@@ -60,8 +60,9 @@ public class ScreenshotHandler {
                 int windowHeight = minecraft.getWindow().getHeight();
                 int imageWidth = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.imageWidth;
                 int imageHeight = Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.imageHeight;
-                Consumer<Component> consumer = (Component component) -> minecraft.execute(() -> minecraft.gui.getChat()
-                        .addMessage(component));
+                Consumer<Component> consumer = (Component component) -> minecraft.execute(() -> {
+                    minecraft.gui.getChat().addClientSystemMessage(component);
+                });
                 this.setHugeScreenshotMode(true);
                 if (Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.tiledRendering) {
                     // the vanilla method only works properly as we patch LevelRenderer::shouldShowEntityOutlines,
@@ -82,7 +83,9 @@ public class ScreenshotHandler {
             if (KeyMappingHelper.isKeyActiveAndMatches(KEY_PANORAMIC_SCREENSHOT, keyEvent)
                     && !OrthoViewHandler.INSTANCE.isActive()) {
                 Component component = minecraft.grabPanoramixScreenshot(minecraft.gameDirectory);
-                minecraft.execute(() -> minecraft.gui.getChat().addMessage(component));
+                minecraft.execute(() -> {
+                    minecraft.gui.getChat().addClientSystemMessage(component);
+                });
             }
         }
 

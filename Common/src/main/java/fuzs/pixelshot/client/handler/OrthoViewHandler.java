@@ -6,12 +6,12 @@ import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
 import fuzs.pixelshot.client.helper.DirectionHelper;
 import fuzs.pixelshot.config.ClientConfig;
-import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
-import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
-import fuzs.puzzleslib.api.util.v1.CommonHelper;
+import fuzs.puzzleslib.common.api.client.core.v1.context.KeyMappingsContext;
+import fuzs.puzzleslib.common.api.client.key.v1.KeyActivationContext;
+import fuzs.puzzleslib.common.api.client.key.v1.KeyMappingHelper;
+import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.common.api.event.v1.data.MutableFloat;
+import fuzs.puzzleslib.common.api.util.v1.CommonHelper;
 import net.minecraft.client.*;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.environment.FogEnvironment;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.network.Connection;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
@@ -195,7 +195,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public EventResult onRenderBlockOverlay(LocalPlayer player, PoseStack poseStack, MultiBufferSource bufferSource, BlockState blockState, MaterialSet materialSet) {
+    public EventResult onRenderBlockOverlay(LocalPlayer player, PoseStack poseStack, MultiBufferSource bufferSource, BlockState blockState, SpriteGetter sprites) {
         return this.isActive ? EventResult.INTERRUPT : EventResult.PASS;
     }
 
@@ -206,7 +206,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onComputeFieldOfView(GameRenderer renderer, Camera camera, float partialTick, MutableFloat fieldOfView) {
+    public void onComputeFieldOfView(Camera camera, float partialTick, MutableFloat fieldOfView) {
         if (this.isActive) {
             // just a random event that fires after Camera::setup, and before values set through that are used
             // note that it's important to set the rotation on the camera itself, so that e.g. particles are rotated correctly

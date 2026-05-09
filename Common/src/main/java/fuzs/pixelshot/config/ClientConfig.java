@@ -1,8 +1,8 @@
 package fuzs.pixelshot.config;
 
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
-import fuzs.puzzleslib.api.config.v3.Config;
-import fuzs.puzzleslib.api.config.v3.ConfigCore;
+import fuzs.puzzleslib.common.api.config.v3.Config;
+import fuzs.puzzleslib.common.api.config.v3.ConfigCore;
 
 public class ClientConfig implements ConfigCore {
     @Config

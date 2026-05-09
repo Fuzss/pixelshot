@@ -2,12 +2,12 @@ package fuzs.pixelshot.client.handler;
 
 import com.google.common.base.Strings;
 import fuzs.pixelshot.Pixelshot;
-import fuzs.puzzleslib.api.util.v1.ComponentHelper;
+import fuzs.puzzleslib.common.api.util.v1.ComponentHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -59,7 +59,7 @@ public class OrthoOverlayHandler {
         return newValue - oldValue > 0.0F ? POSITIVE_COLOR : NEGATIVE_COLOR;
     }
 
-    public void onAfterRenderGui(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public void onAfterRenderGui(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive() && this.overlayTicks > 0) {
             Minecraft minecraft = Minecraft.getInstance();
             Entity entity = minecraft.gameRenderer.getMainCamera().entity();
@@ -103,10 +103,10 @@ public class OrthoOverlayHandler {
 
     /**
      * Copied from
-     * {@link net.minecraft.client.gui.components.DebugScreenOverlay#renderLines(GuiGraphics, List, boolean)} with
-     * support for transparency.
+     * {@link net.minecraft.client.gui.components.DebugScreenOverlay#renderLines(GuiGraphicsExtractor, List, boolean)}
+     * with support for transparency.
      */
-    private void renderLines(Font font, GuiGraphics guiGraphics, List<String> lines, float alpha, boolean leftSide) {
+    private void renderLines(Font font, GuiGraphicsExtractor guiGraphics, List<String> lines, float alpha, boolean leftSide) {
         for (int j = 0; j < lines.size(); ++j) {
             String s = lines.get(j);
             if (!Strings.isNullOrEmpty(s)) {
@@ -128,7 +128,7 @@ public class OrthoOverlayHandler {
                 int l1 = leftSide ? 2 : guiGraphics.guiWidth() - 2 - k1;
                 int i2 = 2 + font.lineHeight * j1;
                 // don't go below 4 as alpha will be set to 100% by the font renderer then
-                guiGraphics.drawString(font, s1, l1, i2, 0xE0E0E0 | Math.max(5, (int) (0xFF * alpha)) << 24, false);
+                guiGraphics.text(font, s1, l1, i2, 0xE0E0E0 | Math.max(5, (int) (0xFF * alpha)) << 24, false);
             }
         }
     }

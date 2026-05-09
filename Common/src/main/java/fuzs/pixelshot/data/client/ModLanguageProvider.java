@@ -5,8 +5,8 @@ import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
 import fuzs.pixelshot.client.handler.ScreenshotHandler;
 import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
-import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
-import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
+import fuzs.puzzleslib.common.api.client.data.v2.AbstractLanguageProvider;
+import fuzs.puzzleslib.common.api.data.v2.core.DataProviderContext;
 
 public class ModLanguageProvider extends AbstractLanguageProvider {
 

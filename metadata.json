@@ -1,9 +1,10 @@
 {
+    "minecraft": "26.1.2",
     "mod": {
         "id": "pixelshot",
         "group": "fuzs.pixelshot",
         "name": "Pixelshot",
-        "version": "21.11.0",
+        "version": "26.1.0",
         "authors": [
             "BarracudaATA",
             "Fuzs",
@@ -38,13 +39,13 @@
     ],
     "links": [
         {
-            "name": "github",
-            "slug": "pixelshot"
-        },
-        {
             "name": "curseforge",
             "slug": "pixelshot",
             "id": "1369180"
+        },
+        {
+            "name": "github",
+            "slug": "pixelshot"
         },
         {
             "name": "modrinth",

@@ -3,16 +3,16 @@ package fuzs.pixelshot.client;
 import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.pixelshot.client.handler.ScreenshotHandler;
-import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
-import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
-import fuzs.puzzleslib.api.client.event.v1.ClientInputEvents;
-import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
-import fuzs.puzzleslib.api.client.event.v1.entity.player.ClientPlayerNetworkEvents;
-import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.ComputeFieldOfViewCallback;
-import fuzs.puzzleslib.api.client.event.v1.renderer.FogEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.RenderBlockOverlayCallback;
+import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.common.api.client.core.v1.context.KeyMappingsContext;
+import fuzs.puzzleslib.common.api.client.event.v1.ClientInputEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.ClientTickEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.entity.player.ClientPlayerNetworkEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.gui.RenderGuiEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.ComputeFieldOfViewCallback;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.FogEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.GameRenderEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.RenderBlockOverlayCallback;
 
 public class PixelshotClient implements ClientModConstructor {
 
