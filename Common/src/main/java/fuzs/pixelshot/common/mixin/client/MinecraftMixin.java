@@ -1,16 +1,18 @@
-package fuzs.pixelshot.mixin.client;
+package fuzs.pixelshot.common.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import fuzs.pixelshot.Pixelshot;
-import fuzs.pixelshot.client.helper.LegacyScreenshot;
-import fuzs.pixelshot.config.ClientConfig;
+import fuzs.pixelshot.common.Pixelshot;
+import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
+import fuzs.pixelshot.common.client.helper.LegacyScreenshot;
+import fuzs.pixelshot.common.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.File;
@@ -19,10 +21,25 @@ import java.util.Objects;
 @Mixin(Minecraft.class)
 abstract class MinecraftMixin {
 
+    @Inject(method = "renderFrame",
+            at = @At(value = "INVOKE",
+                     target = "Lnet/minecraft/client/renderer/GameRenderer;extract(Lnet/minecraft/client/DeltaTracker;Z)V"))
+    private void renderFrame$0(boolean advanceGameTime, CallbackInfo callback) {
+        OrthoViewHandler.INSTANCE.onBeforeExtractFrame(Minecraft.class.cast(this));
+    }
+
+    @Inject(method = "renderFrame",
+            at = @At(value = "INVOKE",
+                     target = "Lnet/minecraft/client/renderer/GameRenderer;extract(Lnet/minecraft/client/DeltaTracker;Z)V",
+                     shift = At.Shift.AFTER))
+    private void renderFrame$1(boolean advanceGameTime, CallbackInfo callback) {
+        OrthoViewHandler.INSTANCE.onAfterExtractFrame(Minecraft.class.cast(this));
+    }
+
     @ModifyExpressionValue(method = "grabPanoramixScreenshot", at = @At(value = "CONSTANT", args = "intValue=4096"))
     public int grabPanoramixScreenshot(int pixelResolution) {
         // The method applies a downscale factor of 4, so we must multiply by 4.
-        return Pixelshot.CONFIG.get(ClientConfig.class).highResolutionScreenshots.panoramicResolution * 4;
+        return (int) Math.pow(2.0, Pixelshot.CONFIG.get(ClientConfig.class).panoramicScreenshots.tileResolutionScale) * 4;
     }
 
     @Inject(method = "grabPanoramixScreenshot", at = @At(value = "HEAD"))

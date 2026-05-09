@@ -1,6 +1,6 @@
-package fuzs.pixelshot.mixin.client;
+package fuzs.pixelshot.common.mixin.client;
 
-import fuzs.pixelshot.client.handler.OrthoViewHandler;
+import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
 import net.minecraft.client.renderer.LevelRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

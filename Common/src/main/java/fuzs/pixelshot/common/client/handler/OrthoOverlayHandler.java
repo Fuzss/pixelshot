@@ -1,7 +1,7 @@
-package fuzs.pixelshot.client.handler;
+package fuzs.pixelshot.common.client.handler;
 
 import com.google.common.base.Strings;
-import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.common.Pixelshot;
 import fuzs.puzzleslib.common.api.util.v1.ComponentHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;

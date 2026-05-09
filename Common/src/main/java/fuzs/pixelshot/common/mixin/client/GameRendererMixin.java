@@ -1,6 +1,6 @@
-package fuzs.pixelshot.mixin.client;
+package fuzs.pixelshot.common.mixin.client;
 
-import fuzs.pixelshot.client.handler.OrthoViewHandler;
+import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -23,9 +23,9 @@ abstract class GameRendererMixin {
                              target = "Lnet/minecraft/client/renderer/GameRenderer;levelProjectionMatrixBuffer:Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;",
                              opcode = Opcodes.GETFIELD),
                     ordinal = 0)
-    public Matrix4f renderLevel$0(Matrix4f projectionMatrix, DeltaTracker deltaTracker) {
+    public Matrix4f renderLevel(Matrix4f projectionMatrix, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
-            return OrthoViewHandler.INSTANCE.getProjectionMatrix(this.minecraft,
+            return OrthoViewHandler.INSTANCE.createProjectionMatrix(this.minecraft,
                     deltaTracker.getGameTimeDeltaPartialTick(true),
                     false);
         } else {

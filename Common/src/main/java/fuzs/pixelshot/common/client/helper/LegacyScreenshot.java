@@ -1,4 +1,4 @@
-package fuzs.pixelshot.client.helper;
+package fuzs.pixelshot.common.client.helper;
 
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -39,16 +39,16 @@ public class LegacyScreenshot {
             i++;
         }
 
-        byte[] bs = new byte[18];
-        bs[2] = 2;
-        bs[12] = (byte) (width % 256);
-        bs[13] = (byte) (width / 256);
-        bs[14] = (byte) (height % 256);
-        bs[15] = (byte) (height / 256);
-        bs[16] = 24;
+        byte[] bytes = new byte[18];
+        bytes[2] = 2;
+        bytes[12] = (byte) (width % 256);
+        bytes[13] = (byte) (width / 256);
+        bytes[14] = (byte) (height % 256);
+        bytes[15] = (byte) (height / 256);
+        bytes[16] = 24;
         this.bytes = new byte[width * rowHeight * 3];
         this.outputStream = new DataOutputStream(new FileOutputStream(this.file));
-        this.outputStream.write(bs);
+        this.outputStream.write(bytes);
     }
 
     public static ByteBuffer allocateMemory(int size) {

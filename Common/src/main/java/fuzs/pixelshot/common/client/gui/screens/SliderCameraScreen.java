@@ -1,7 +1,7 @@
-package fuzs.pixelshot.client.gui.screens;
+package fuzs.pixelshot.common.client.gui.screens;
 
-import fuzs.pixelshot.Pixelshot;
-import fuzs.pixelshot.client.handler.OrthoViewHandler;
+import fuzs.pixelshot.common.Pixelshot;
+import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
 import fuzs.puzzleslib.common.api.client.gui.v2.components.RangedSliderButton;
 import fuzs.puzzleslib.common.api.client.gui.v2.tooltip.TooltipBuilder;
 import net.minecraft.client.gui.components.AbstractWidget;

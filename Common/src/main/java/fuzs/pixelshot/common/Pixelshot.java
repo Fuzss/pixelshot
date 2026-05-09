@@ -1,6 +1,6 @@
-package fuzs.pixelshot;
+package fuzs.pixelshot.common;
 
-import fuzs.pixelshot.config.ClientConfig;
+import fuzs.pixelshot.common.config.ClientConfig;
 import fuzs.puzzleslib.common.api.config.v3.ConfigHolder;
 import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
 import net.minecraft.resources.Identifier;

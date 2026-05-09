@@ -1,6 +1,6 @@
 package fuzs.pixelshot.fabric;
 
-import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.common.Pixelshot;
 import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
 import net.fabricmc.api.ModInitializer;
 

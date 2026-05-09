@@ -1,8 +1,8 @@
 package fuzs.pixelshot.neoforge.client;
 
-import fuzs.pixelshot.Pixelshot;
-import fuzs.pixelshot.client.PixelshotClient;
-import fuzs.pixelshot.data.client.ModLanguageProvider;
+import fuzs.pixelshot.common.Pixelshot;
+import fuzs.pixelshot.common.client.PixelshotClient;
+import fuzs.pixelshot.common.data.client.ModLanguageProvider;
 import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.neoforge.api.data.v2.core.DataProviderHelper;
 import net.neoforged.api.distmarker.Dist;

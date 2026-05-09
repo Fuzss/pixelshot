@@ -1,7 +1,7 @@
 package fuzs.pixelshot.fabric.client;
 
-import fuzs.pixelshot.Pixelshot;
-import fuzs.pixelshot.client.PixelshotClient;
+import fuzs.pixelshot.common.Pixelshot;
+import fuzs.pixelshot.common.client.PixelshotClient;
 import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
 import net.fabricmc.api.ClientModInitializer;
 

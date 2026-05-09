@@ -1,9 +1,9 @@
-package fuzs.pixelshot.client.gui.screens;
+package fuzs.pixelshot.common.client.gui.screens;
 
-import fuzs.pixelshot.Pixelshot;
-import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
-import fuzs.pixelshot.client.handler.OrthoViewHandler;
-import fuzs.pixelshot.config.ClientConfig;
+import fuzs.pixelshot.common.Pixelshot;
+import fuzs.pixelshot.common.client.handler.OrthoOverlayHandler;
+import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
+import fuzs.pixelshot.common.config.ClientConfig;
 import fuzs.puzzleslib.common.api.util.v1.CommonHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -17,10 +17,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -56,8 +53,6 @@ public abstract class AbstractCameraScreen extends Screen {
     protected final Type type;
     protected final OrthoViewHandler handler;
     private boolean focusModeActive;
-    private AbstractWidget focusButton;
-    private AbstractWidget exitButton;
 
     AbstractCameraScreen(Type type, Component title, OrthoViewHandler handler) {
         super(title);
@@ -109,42 +104,48 @@ public abstract class AbstractCameraScreen extends Screen {
                 rotationWidgets.addAll(widgets);
             }
         }
-        rotationWidgets.forEach(abstractWidget -> abstractWidget.active = !this.handler.followPlayerView());
+
+        rotationWidgets.forEach((AbstractWidget abstractWidget) -> {
+            abstractWidget.active = !this.handler.followPlayerView();
+        });
     }
 
     protected void addControlRow(OrthoComponent component, int rowHeight, Collection<AbstractWidget> widgets) {
-        this.focusButton = new ImageButton(this.width / 2 + 182,
+        AbstractWidget[] focusModeWidgets = new AbstractWidget[2];
+        focusModeWidgets[0] = new ImageButton(this.width / 2 + 182,
                 rowHeight,
                 20,
                 20,
                 FOCUS_BUTTON_SPRITES,
                 (Button button) -> {
-                    this.setFocusModeActive(true, widgets);
+                    this.setFocusModeActive(true, widgets, focusModeWidgets);
                 });
-        this.exitButton = new ImageButton(this.width / 2 + 182,
+        focusModeWidgets[1] = new ImageButton(this.width / 2 + 182,
                 rowHeight,
                 20,
                 20,
                 EXIT_BUTTON_SPRITES,
                 (Button button) -> {
-                    this.setFocusModeActive(false, widgets);
+                    this.setFocusModeActive(false, widgets, focusModeWidgets);
                 });
-        this.setFocusModeButtons(this.focusModeActive);
+        widgets.addAll(Arrays.asList(focusModeWidgets));
+        this.setFocusModeButtons(focusModeWidgets);
     }
 
-    private void setFocusModeActive(boolean isFocusModeActive, Collection<AbstractWidget> widgets) {
-        this.setFocusModeButtons(isFocusModeActive);
+    private void setFocusModeActive(boolean isFocusModeActive, Collection<AbstractWidget> widgets, AbstractWidget[] focusModeWidgets) {
         this.focusModeActive = isFocusModeActive;
         for (GuiEventListener guiEventListener : this.children()) {
             if (guiEventListener instanceof AbstractWidget abstractWidget && !widgets.contains(abstractWidget)) {
                 abstractWidget.visible = !isFocusModeActive;
             }
         }
+
+        this.setFocusModeButtons(focusModeWidgets);
     }
 
-    private void setFocusModeButtons(boolean isFocusModeActive) {
-        this.focusButton.visible = !isFocusModeActive;
-        this.exitButton.visible = isFocusModeActive;
+    private void setFocusModeButtons(AbstractWidget[] focusModeWidgets) {
+        focusModeWidgets[0].visible = !this.focusModeActive;
+        focusModeWidgets[1].visible = this.focusModeActive;
     }
 
     protected AbstractWidget createResetButton(int rowHeight, Runnable runnable) {

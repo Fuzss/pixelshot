@@ -1,21 +1,23 @@
-package fuzs.pixelshot.client.handler;
+package fuzs.pixelshot.common.client.handler;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
-import fuzs.pixelshot.Pixelshot;
-import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
-import fuzs.pixelshot.client.helper.DirectionHelper;
-import fuzs.pixelshot.config.ClientConfig;
+import fuzs.pixelshot.common.Pixelshot;
+import fuzs.pixelshot.common.client.gui.screens.AbstractCameraScreen;
+import fuzs.pixelshot.common.client.helper.DirectionHelper;
+import fuzs.pixelshot.common.config.ClientConfig;
 import fuzs.puzzleslib.common.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.common.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.common.api.client.key.v1.KeyMappingHelper;
 import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
 import fuzs.puzzleslib.common.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.common.api.util.v1.CommonHelper;
-import net.minecraft.client.*;
+import net.minecraft.client.Camera;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.environment.FogEnvironment;
@@ -179,7 +181,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onBeforeGameRender(Minecraft minecraft, GameRenderer gameRenderer, DeltaTracker deltaTracker) {
+    public void onBeforeExtractFrame(Minecraft minecraft) {
         if (this.isActive) {
             this.tmpHideGui = minecraft.options.hideGui;
             minecraft.options.hideGui = true;
@@ -188,7 +190,7 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onAfterGameRender(Minecraft minecraft, GameRenderer gameRenderer, DeltaTracker deltaTracker) {
+    public void onAfterExtractFrame(Minecraft minecraft) {
         if (this.isActive) {
             minecraft.options.hideGui = this.tmpHideGui;
             minecraft.options.setCameraType(this.tmpCameraType);
@@ -317,10 +319,10 @@ public class OrthoViewHandler {
         return Mth.wrapDegrees(partialTick == 1.0F ? this.yRot : Mth.lerp(partialTick, this.oldYRot, this.yRot));
     }
 
-    public Matrix4f getProjectionMatrix(Minecraft minecraft, float partialTick, boolean forFrustum) {
-        // thanks to OrthoCamera mod for this trick with offsetting the zoom level for frustum
-        // otherwise game often completely freezes when frustum and projection matrix are not far enough apart
-        // source at https://github.com/DimasKama/OrthoCamera/tree/master
+    public Matrix4f createProjectionMatrix(Minecraft minecraft, float partialTick, boolean forFrustum) {
+        // Thanks to the OrthoCamera mod for this trick with offsetting the zoom level for frustum.
+        // Otherwise, the game often completely freezes when frustum and projection matrix are not far enough apart.
+        // See: https://github.com/DimasKama/OrthoCamera/tree/master
         float height = this.getZoom(partialTick) + (forFrustum ? 20.0F : 0.0F);
         float width = height * (minecraft.getWindow().getWidth() / (float) minecraft.getWindow().getHeight());
         return new Matrix4f().setOrtho(-width,

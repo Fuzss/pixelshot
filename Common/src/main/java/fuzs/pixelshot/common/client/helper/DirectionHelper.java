@@ -1,4 +1,4 @@
-package fuzs.pixelshot.client.helper;
+package fuzs.pixelshot.common.client.helper;
 
 import com.google.common.collect.Maps;
 import net.minecraft.core.Direction;
