@@ -4,7 +4,7 @@
 
 | Branch | Status | Changelog | Fabric | NeoForge |
 | --- | --- | --- | --- | --- |
-| [26.1.x](https://github.com/Fuzss/pixelshot/tree/26.1.x) | ✅&nbsp;Primary | [CHANGELOG.md](https://github.com/Fuzss/pixelshot/blob/26.1.x/CHANGELOG.md) | <img src="https://cdn.simpleicons.org/curseforge" width="14" />&nbsp;[CurseForge](https://www.curseforge.com/minecraft/mc-mods/pixelshot/files/all?version=26.1&gameVersionTypeId=4)<br /> <img src="https://cdn.simpleicons.org/modrinth" width="14" />&nbsp;[Modrinth](https://modrinth.com/mod/pixelshot/versions?g=26.1&l=fabric) | <img src="https://cdn.simpleicons.org/curseforge" width="14" />&nbsp;[CurseForge](https://www.curseforge.com/minecraft/mc-mods/pixelshot/files/all?version=26.1&gameVersionTypeId=6)<br /> <img src="https://cdn.simpleicons.org/modrinth" width="14" />&nbsp;[Modrinth](https://modrinth.com/mod/pixelshot/versions?g=26.1&l=neoforge) |
+| [26.1.x](https://github.com/Fuzss/pixelshot/tree/26.1.x) | ✅&nbsp;Primary | [CHANGELOG.md](https://github.com/Fuzss/pixelshot/blob/26.1.x/CHANGELOG.md) | <img src="https://cdn.simpleicons.org/curseforge" width="14" />&nbsp;[CurseForge](https://www.curseforge.com/minecraft/mc-mods/pixelshot/files/all?version=26.1.2&gameVersionTypeId=4)<br /> <img src="https://cdn.simpleicons.org/modrinth" width="14" />&nbsp;[Modrinth](https://modrinth.com/mod/pixelshot/versions?g=26.1.2&l=fabric) | <img src="https://cdn.simpleicons.org/curseforge" width="14" />&nbsp;[CurseForge](https://www.curseforge.com/minecraft/mc-mods/pixelshot/files/all?version=26.1.2&gameVersionTypeId=6)<br /> <img src="https://cdn.simpleicons.org/modrinth" width="14" />&nbsp;[Modrinth](https://modrinth.com/mod/pixelshot/versions?g=26.1.2&l=neoforge) |
 
 ### Minecraft 1.21.x
 
@@ -26,6 +26,7 @@
 | Branch | Status | Changelog | Downloads |
 | --- | --- | --- | --- |
 | [1.20.4](https://github.com/Fuzss/pixelshot/tree/1.20.4) | ❌&nbsp;Archived | [CHANGELOG.md](https://github.com/Fuzss/pixelshot/blob/1.20.4/CHANGELOG.md) | <img src="https://cdn.simpleicons.org/curseforge" width="14" />&nbsp;[CurseForge](https://www.curseforge.com/members/fuzs_/projects)<br /><img src="https://cdn.simpleicons.org/modrinth" width="14" />&nbsp;[Modrinth](https://modrinth.com/user/Fuzs) |
+| [1.20.1](https://github.com/Fuzss/pixelshot/tree/1.20.1) | ⚠️&nbsp;Bugfixes&nbsp;only | [CHANGELOG.md](https://github.com/Fuzss/pixelshot/blob/1.20.1/CHANGELOG.md) | <img src="https://cdn.simpleicons.org/curseforge" width="14" />&nbsp;[CurseForge](https://www.curseforge.com/members/fuzs_/projects)<br /><img src="https://cdn.simpleicons.org/modrinth" width="14" />&nbsp;[Modrinth](https://modrinth.com/user/Fuzs) |
 
 ---
 
