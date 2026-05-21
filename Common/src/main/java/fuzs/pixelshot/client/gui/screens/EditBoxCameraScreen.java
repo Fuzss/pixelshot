@@ -2,13 +2,9 @@ package fuzs.pixelshot.client.gui.screens;
 
 import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
-import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -37,15 +33,8 @@ public class EditBoxCameraScreen extends AbstractCameraScreen {
                 maxWidth,
                 this.font.lineHeight,
                 component.component,
-                this.font
-        ));
-        EditBox editBox = new EditBox(this.font,
-                this.width / 2 - 20,
-                rowHeight,
-                150,
-                20,
-                GameNarrator.NO_TITLE
-        );
+                this.font));
+        EditBox editBox = new EditBox(this.font, this.width / 2 - 20, rowHeight, 150, 20, GameNarrator.NO_TITLE);
         editBox.setFilter((String string) -> {
             return string.matches(VALID_NUMBER_PATTERN);
         });
@@ -58,32 +47,32 @@ public class EditBoxCameraScreen extends AbstractCameraScreen {
             }
         });
         widgets.add(editBox);
-        SpritelessImageButton plusButton = new SpritelessImageButton(this.width / 2 + 134,
+        ImageButton plusButton = new ImageButton(this.width / 2 + 134,
                 rowHeight,
                 20,
                 10,
                 0,
                 0,
-                WIDGETS_LOCATION,
+                20,
+                ICONS_LOCATION,
                 (Button button) -> {
                     consumer.accept(supplier.get() + getCurrentIncrement());
                     editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(supplier.get())));
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+                });
         plusButton.setTooltip(new DynamicTooltip(plusButton, '+'));
         widgets.add(plusButton);
-        SpritelessImageButton minusButton = new SpritelessImageButton(this.width / 2 + 134,
+        ImageButton minusButton = new ImageButton(this.width / 2 + 134,
                 rowHeight + 10,
                 20,
                 10,
                 20,
                 0,
-                WIDGETS_LOCATION,
+                20,
+                ICONS_LOCATION,
                 (Button button) -> {
                     consumer.accept(supplier.get() - getCurrentIncrement());
                     editBox.setValue(String.valueOf(OrthoViewHandler.roundValue(supplier.get())));
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+                });
         minusButton.setTooltip(new DynamicTooltip(minusButton, '-'));
         widgets.add(minusButton);
         widgets.add(this.getResetButton(rowHeight, () -> {
@@ -93,8 +82,6 @@ public class EditBoxCameraScreen extends AbstractCameraScreen {
     }
 
     private static int getMaxComponentWidth(Font font) {
-        return Math.max(font.width(COMPONENT_Y_ROT),
-                Math.max(font.width(COMPONENT_ZOOM), font.width(COMPONENT_X_ROT))
-        );
+        return Math.max(font.width(COMPONENT_Y_ROT), Math.max(font.width(COMPONENT_ZOOM), font.width(COMPONENT_X_ROT)));
     }
 }

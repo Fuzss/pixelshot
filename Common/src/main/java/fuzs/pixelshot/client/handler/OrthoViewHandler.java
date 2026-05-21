@@ -9,7 +9,6 @@ import fuzs.pixelshot.client.helper.DirectionHelper;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.screen.v2.KeyMappingActivationHelper;
-import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.api.event.v1.data.MutableValue;
 import net.minecraft.client.Camera;
@@ -192,14 +191,15 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onComputeFieldOfView(GameRenderer renderer, Camera camera, float partialTick, MutableDouble fieldOfView) {
+    public void onComputeCameraAngles(GameRenderer renderer, Camera camera, float partialTicks, MutableFloat pitch, MutableFloat yaw, MutableFloat roll) {
         if (this.isActive) {
             // just a random event that fires after Camera::setup, and before values set through that are used
             // note that it's important to set the rotation on the camera itself, so that e.g. particles are rotated correctly
             // possibly switch back to ComputeCameraAnglesCallback for 1.21 since NeoForge has moved the injection point
             if (!this.followPlayerView) {
-                camera.setRotation(this.getYRot(partialTick), this.getXRot(partialTick));
+                camera.setRotation(this.getYRot(partialTicks), this.getXRot(partialTicks));
             }
+
             if (this.renderPlayerEntity) {
                 camera.detached = true;
             }

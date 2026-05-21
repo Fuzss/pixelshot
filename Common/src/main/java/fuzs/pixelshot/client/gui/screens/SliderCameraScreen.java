@@ -1,10 +1,10 @@
 package fuzs.pixelshot.client.gui.screens;
 
+import fuzs.pixelshot.client.gui.components.RangedSliderButton;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
-import fuzs.puzzleslib.api.client.gui.v2.components.RangedSliderButton;
-import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
@@ -28,29 +28,29 @@ public class SliderCameraScreen extends AbstractCameraScreen {
                 20,
                 supplier.get(),
                 component.minValue,
-                component.maxValue
-        ) {
+                component.maxValue) {
             static final double LOGARITHMIC_SCALE = 4.0;
             static final double LOGARITHMIC_SCALE_POW = Math.pow(10.0, -LOGARITHMIC_SCALE);
 
             @Override
-            public double getScaledValue() {
+            public double getAbsoluteValue() {
                 if (component.supportsLogarithmicScale()) {
-                    double value = Math.pow(10.0, this.getValue() * LOGARITHMIC_SCALE - LOGARITHMIC_SCALE) -
-                            LOGARITHMIC_SCALE_POW;
+                    double value = Math.pow(10.0, this.getRelativeValue() * LOGARITHMIC_SCALE - LOGARITHMIC_SCALE)
+                            - LOGARITHMIC_SCALE_POW;
                     return value * (this.maxValue - this.minValue) + this.minValue;
                 } else {
-                    return super.getScaledValue();
+                    return super.getAbsoluteValue();
                 }
             }
 
             @Override
-            public void setScaledValue(double value) {
+            public void setAbsoluteValue(double value) {
                 if (component.supportsLogarithmicScale()) {
                     value = (value - this.minValue) / (this.maxValue - this.minValue);
-                    this.setValue((Math.log10(value + LOGARITHMIC_SCALE_POW) + LOGARITHMIC_SCALE) / LOGARITHMIC_SCALE);
+                    this.setRelativeValue(
+                            (Math.log10(value + LOGARITHMIC_SCALE_POW) + LOGARITHMIC_SCALE) / LOGARITHMIC_SCALE);
                 } else {
-                    super.setScaledValue(value);
+                    super.setAbsoluteValue(value);
                 }
             }
 
@@ -65,37 +65,35 @@ public class SliderCameraScreen extends AbstractCameraScreen {
             }
         };
         widgets.add(sliderButton);
-        SpritelessImageButton plusButton = new SpritelessImageButton(this.width / 2 + 134,
+        ImageButton plusButton = new ImageButton(this.width / 2 + 134,
                 rowHeight,
                 20,
                 20,
                 60,
                 0,
-                WIDGETS_LOCATION,
+                ICONS_LOCATION,
                 (Button button) -> {
                     consumer.accept(supplier.get() + getCurrentIncrement());
-                    sliderButton.setScaledValue(supplier.get());
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+                    sliderButton.setAbsoluteValue(supplier.get());
+                });
         plusButton.setTooltip(new DynamicTooltip(plusButton, '+'));
         widgets.add(plusButton);
-        SpritelessImageButton minusButton = new SpritelessImageButton(this.width / 2 - 154,
+        ImageButton minusButton = new ImageButton(this.width / 2 - 154,
                 rowHeight,
                 20,
                 20,
                 40,
                 0,
-                WIDGETS_LOCATION,
+                ICONS_LOCATION,
                 (Button button) -> {
                     consumer.accept(supplier.get() - getCurrentIncrement());
-                    sliderButton.setScaledValue(supplier.get());
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+                    sliderButton.setAbsoluteValue(supplier.get());
+                });
         minusButton.setTooltip(new DynamicTooltip(minusButton, '-'));
         widgets.add(minusButton);
         widgets.add(this.getResetButton(rowHeight, () -> {
             consumer.accept(component.getDefaultValue());
-            sliderButton.setScaledValue(component.getDefaultValue());
+            sliderButton.setAbsoluteValue(component.getDefaultValue());
         }));
     }
 }

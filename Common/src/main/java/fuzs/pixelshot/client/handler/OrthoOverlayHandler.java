@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.pixelshot.Pixelshot;
-import fuzs.puzzleslib.api.chat.v1.ComponentHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -64,12 +63,9 @@ public class OrthoOverlayHandler {
         OrthoViewHandler orthoViewHandler = OrthoViewHandler.INSTANCE;
         if (orthoViewHandler.isActive() && this.overlayTicks > 0) {
             // same setup as in GameRenderer::render, so we only render in a level
-            if (minecraft.isGameLoadFinished() && minecraft.level != null && minecraft.screen == null) {
+            if (minecraft.level != null && minecraft.screen == null) {
                 List<String> lines = new ArrayList<>();
-                lines.add(this.getDisplayEntry(KEY_ZOOM,
-                        orthoViewHandler.getZoom(),
-                        this.zoomColor
-                ));
+                lines.add(this.getDisplayEntry(KEY_ZOOM, orthoViewHandler.getZoom(), this.zoomColor));
                 float xRot;
                 if (orthoViewHandler.followPlayerView()) {
                     xRot = gameRenderer.getMainCamera().getEntity().getViewXRot(1.0F);
@@ -94,8 +90,7 @@ public class OrthoOverlayHandler {
                         guiGraphics,
                         lines,
                         Mth.clamp((this.overlayTicks - partialTick) / OVERLAY_FADE_START, 0.0F, 1.0F),
-                        true
-                );
+                        true);
                 guiGraphics.flush();
                 posestack.popPose();
                 RenderSystem.applyModelViewMatrix();
@@ -105,9 +100,8 @@ public class OrthoOverlayHandler {
 
     private String getDisplayEntry(String translationKey, float value, ChatFormatting color) {
         Component component = Component.translatable(translationKey,
-                Component.literal(("%." + OrthoViewHandler.DECIMAL_PLACES + "f").formatted(value)).withStyle(color)
-        );
-        return ComponentHelper.toString(component);
+                Component.literal(("%." + OrthoViewHandler.DECIMAL_PLACES + "f").formatted(value)));
+        return color + component.getString();
     }
 
     /**
@@ -127,8 +121,7 @@ public class OrthoOverlayHandler {
                         i1 - 1,
                         l + k + 1,
                         i1 + font.lineHeight - 1,
-                        0x505050 | (int) (0x90 * alpha) << 24
-                );
+                        0x505050 | (int) (0x90 * alpha) << 24);
             }
         }
 

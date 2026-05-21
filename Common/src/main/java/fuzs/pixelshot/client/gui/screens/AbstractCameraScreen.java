@@ -4,15 +4,14 @@ import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
 import fuzs.pixelshot.config.ClientConfig;
-import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.CommonComponents;
@@ -30,7 +29,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public abstract class AbstractCameraScreen extends Screen {
-    static final ResourceLocation WIDGETS_LOCATION = Pixelshot.id("textures/gui/widgets.png");
+    static final ResourceLocation ICONS_LOCATION = Pixelshot.id("textures/gui/icons.png");
     static final Component COMPONENT_ON = Component.empty()
             .append(CommonComponents.OPTION_ON)
             .withStyle(ChatFormatting.GREEN);
@@ -76,23 +75,19 @@ public abstract class AbstractCameraScreen extends Screen {
                     this.handler.flipFollowPlayerView();
                     button.setMessage(getOptionComponent(KEY_FOLLOW_VIEW, this.handler.followPlayerView()));
                     rotationWidgets.forEach(abstractWidget -> abstractWidget.active = !this.handler.followPlayerView());
-                }
-        ).bounds(this.width / 2 - 154, this.height / 6 + 100, 150, 20).build());
+                }).bounds(this.width / 2 - 154, this.height / 6 + 100, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_NEAR_CLIPPING, this.handler.nearClipping()),
                 (Button button) -> {
                     this.handler.flipNearClipping();
                     button.setMessage(getOptionComponent(KEY_NEAR_CLIPPING, this.handler.nearClipping()));
-                }
-        ).bounds(this.width / 2 + 4, this.height / 6 + 100, 150, 20).build());
+                }).bounds(this.width / 2 + 4, this.height / 6 + 100, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_RENDER_SKY, this.handler.renderSky()),
                 (Button button) -> {
                     this.handler.flipRenderSky();
                     button.setMessage(getOptionComponent(KEY_RENDER_SKY, this.handler.renderSky()));
-                }
-        ).bounds(this.width / 2 - 154, this.height / 6 + 126, 150, 20).build());
+                }).bounds(this.width / 2 - 154, this.height / 6 + 126, 150, 20).build());
         this.addRenderableWidget(Button.builder(getOptionComponent(KEY_RENDER_PLAYER,
-                this.handler.renderPlayerEntity()
-        ), (Button button) -> {
+                this.handler.renderPlayerEntity()), (Button button) -> {
             this.handler.flipRenderPlayerEntity();
             button.setMessage(getOptionComponent(KEY_RENDER_PLAYER, this.handler.renderPlayerEntity()));
         }).bounds(this.width / 2 + 4, this.height / 6 + 126, 150, 20).build());
@@ -110,38 +105,29 @@ public abstract class AbstractCameraScreen extends Screen {
     }
 
     void addControlRow(OrthoComponent component, int rowHeight, Collection<AbstractWidget> widgets) {
-        widgets.add(new SpritelessImageButton(this.width / 2 + 182,
+        widgets.add(new ImageButton(this.width / 2 + 182,
                 rowHeight,
                 20,
                 20,
                 4 * 20,
                 0,
-                WIDGETS_LOCATION,
+                ICONS_LOCATION,
                 (Button button) -> {
                     this.focusModeActive = !this.focusModeActive;
-                    ((SpritelessImageButton) button).xTexStart = (this.focusModeActive ? 5 : 4) * 20;
+                    ((ImageButton) button).xTexStart = (this.focusModeActive ? 5 : 4) * 20;
                     for (GuiEventListener guiEventListener : this.children()) {
-                        if (guiEventListener instanceof AbstractWidget abstractWidget &&
-                                !widgets.contains(abstractWidget)) {
+                        if (guiEventListener instanceof AbstractWidget abstractWidget && !widgets.contains(
+                                abstractWidget)) {
                             abstractWidget.visible = !this.focusModeActive;
                         }
                     }
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT));
+                }));
     }
 
     AbstractWidget getResetButton(int rowHeight, Runnable runnable) {
-        return new SpritelessImageButton(this.width / 2 + 158,
-                rowHeight,
-                20,
-                20,
-                6 * 20,
-                0,
-                WIDGETS_LOCATION,
-                (Button button) -> {
-                    runnable.run();
-                }
-        ).setDrawBackground().setTextureLayout(SpritelessImageButton.SINGLE_TEXTURE_LAYOUT);
+        return new ImageButton(this.width / 2 + 158, rowHeight, 20, 20, 6 * 20, 0, ICONS_LOCATION, (Button button) -> {
+            runnable.run();
+        });
     }
 
     static Component getOptionComponent(String translationKey, boolean onOffState) {
@@ -150,16 +136,13 @@ public abstract class AbstractCameraScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (!this.focusModeActive) {
+            this.renderBackground(guiGraphics);
+        }
+
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (!this.focusModeActive) {
             guiGraphics.drawCenteredString(this.font, COMPONENT_TITLE, this.width / 2, this.height / 6 - 15, 0XFFFFFF);
-        }
-    }
-
-    @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (!this.focusModeActive) {
-            super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
 
@@ -194,14 +177,11 @@ public abstract class AbstractCameraScreen extends Screen {
 
         @Override
         public List<FormattedCharSequence> toCharSequence(Minecraft minecraft) {
-            return Collections.singletonList(Language.getInstance()
-                    .getVisualOrder(FormattedText.of(String.valueOf(this.sign) + getCurrentIncrement())));
-        }
-
-        @Override
-        public void refreshTooltipForNextRenderPass(boolean hovering, boolean focused, ScreenRectangle screenRectangle) {
             if (this.abstractWidget.active) {
-                super.refreshTooltipForNextRenderPass(hovering, focused, screenRectangle);
+                return Collections.singletonList(Language.getInstance()
+                        .getVisualOrder(FormattedText.of(String.valueOf(this.sign) + getCurrentIncrement())));
+            } else {
+                return Collections.emptyList();
             }
         }
     }
@@ -230,20 +210,17 @@ public abstract class AbstractCameraScreen extends Screen {
                 OrthoViewHandler.ZOOM_MIN,
                 OrthoViewHandler.ZOOM_MAX,
                 OrthoViewHandler::getZoom,
-                OrthoViewHandler::setZoom
-        ),
+                OrthoViewHandler::setZoom),
         X_ROTATION(OrthoOverlayHandler.KEY_X_ROTATION,
                 OrthoViewHandler.X_ROTATION_MIN,
                 OrthoViewHandler.X_ROTATION_MAX,
                 OrthoViewHandler::getXRot,
-                OrthoViewHandler::setXRot
-        ),
+                OrthoViewHandler::setXRot),
         Y_ROTATION(OrthoOverlayHandler.KEY_Y_ROTATION,
                 OrthoViewHandler.Y_ROTATION_MIN,
                 OrthoViewHandler.Y_ROTATION_MAX,
                 OrthoViewHandler::getYRot,
-                OrthoViewHandler::setYRot
-        );
+                OrthoViewHandler::setYRot);
 
         static final OrthoComponent[] VALUES = values();
 
