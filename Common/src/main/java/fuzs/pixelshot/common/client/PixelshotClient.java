@@ -9,6 +9,7 @@ import fuzs.puzzleslib.common.api.client.event.v1.ClientInputEvents;
 import fuzs.puzzleslib.common.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.common.api.client.event.v1.entity.player.ClientPlayerNetworkEvents;
 import fuzs.puzzleslib.common.api.client.event.v1.gui.RenderGuiEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.ComputeCameraAnglesCallback;
 import fuzs.puzzleslib.common.api.client.event.v1.renderer.ComputeFieldOfViewCallback;
 import fuzs.puzzleslib.common.api.client.event.v1.renderer.FogEvents;
 import fuzs.puzzleslib.common.api.client.event.v1.renderer.RenderBlockOverlayCallback;
@@ -22,6 +23,7 @@ public class PixelshotClient implements ClientModConstructor {
 
     private static void registerEventHandlers() {
         ClientTickEvents.START.register(OrthoViewHandler.INSTANCE::onStartClientTick);
+        ComputeCameraAnglesCallback.EVENT.register(OrthoViewHandler.INSTANCE::onComputeCameraAngles);
         ComputeFieldOfViewCallback.EVENT.register(OrthoViewHandler.INSTANCE::onComputeFieldOfView);
         FogEvents.SETUP.register(OrthoViewHandler.INSTANCE::onSetupFog);
         ClientPlayerNetworkEvents.JOIN.register(OrthoViewHandler.INSTANCE::onPlayerJoin);

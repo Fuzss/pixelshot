@@ -208,18 +208,17 @@ public class OrthoViewHandler {
         }
     }
 
-    public void onComputeFieldOfView(Camera camera, float partialTick, MutableFloat fieldOfView) {
-        if (this.isActive) {
-            // just a random event that fires after Camera::setup, and before values set through that are used
-            // note that it's important to set the rotation on the camera itself, so that e.g. particles are rotated correctly
-            // possibly switch back to ComputeCameraAnglesCallback for 1.21 since NeoForge has moved the injection point
-            if (!this.followPlayerView) {
-                camera.setRotation(this.getYRot(partialTick), this.getXRot(partialTick));
-            }
+    public void onComputeCameraAngles(Camera camera, float partialTick, MutableFloat pitch, MutableFloat yaw, MutableFloat roll) {
+        if (this.isActive && !this.followPlayerView) {
+            yaw.accept(this.getYRot(partialTick));
+            pitch.accept(this.getXRot(partialTick));
+        }
+    }
 
-            if (this.renderPlayerEntity) {
-                camera.detached = true;
-            }
+    public void onComputeFieldOfView(Camera camera, float partialTick, MutableFloat fieldOfView) {
+        // Just a random event that fires after the detached state is set, so we can override that.
+        if (this.isActive && this.renderPlayerEntity) {
+            camera.detached = true;
         }
     }
 
