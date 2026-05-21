@@ -3,12 +3,12 @@ package fuzs.pixelshot.client.handler;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.shaders.FogShape;
 import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.client.PixelshotClient;
 import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
 import fuzs.pixelshot.client.helper.DirectionHelper;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
+import fuzs.puzzleslib.api.client.screen.v2.KeyMappingActivationHelper;
 import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
 import fuzs.puzzleslib.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.api.event.v1.data.MutableValue;
@@ -45,30 +45,23 @@ public class OrthoViewHandler {
     public static final float FAR_CLIPPING_DISTANCE = 1000.0F;
     private static final float STEP_MULTIPLIER = 0.25F;
     static final int DECIMAL_PLACES = 1;
-    public static final KeyMapping KEY_TOGGLE_VIEW = KeyMappingHelper.registerKeyMapping(Pixelshot.id(
+    public static final KeyMapping KEY_TOGGLE_VIEW = PixelshotClient.registerKeyMapping(Pixelshot.id(
             "orthographic_camera"), InputConstants.KEY_F7);
-    public static final KeyMapping KEY_OPEN_MENU = KeyMappingHelper.registerKeyMapping(Pixelshot.id("open_menu"),
-            InputConstants.KEY_F8
-    );
-    public static final KeyMapping KEY_ZOOM_IN = KeyMappingHelper.registerKeyMapping(Pixelshot.id("zoom_in"),
-            InputConstants.KEY_RBRACKET
-    );
-    public static final KeyMapping KEY_ZOOM_OUT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("zoom_out"),
-            InputConstants.KEY_BACKSLASH
-    );
-    public static final KeyMapping KEY_ROTATE_LEFT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_left"),
-            InputConstants.KEY_LEFT
-    );
-    public static final KeyMapping KEY_ROTATE_RIGHT = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_right"),
-            InputConstants.KEY_RIGHT
-    );
-    public static final KeyMapping KEY_ROTATE_UP = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_up"),
-            InputConstants.KEY_UP
-    );
-    public static final KeyMapping KEY_ROTATE_DOWN = KeyMappingHelper.registerKeyMapping(Pixelshot.id("rotate_down"),
-            InputConstants.KEY_DOWN
-    );
-    public static final KeyMapping KEY_SWITCH_PRESET = KeyMappingHelper.registerUnboundKeyMapping(Pixelshot.id(
+    public static final KeyMapping KEY_OPEN_MENU = PixelshotClient.registerKeyMapping(Pixelshot.id("open_menu"),
+            InputConstants.KEY_F8);
+    public static final KeyMapping KEY_ZOOM_IN = PixelshotClient.registerKeyMapping(Pixelshot.id("zoom_in"),
+            InputConstants.KEY_RBRACKET);
+    public static final KeyMapping KEY_ZOOM_OUT = PixelshotClient.registerKeyMapping(Pixelshot.id("zoom_out"),
+            InputConstants.KEY_BACKSLASH);
+    public static final KeyMapping KEY_ROTATE_LEFT = PixelshotClient.registerKeyMapping(Pixelshot.id("rotate_left"),
+            InputConstants.KEY_LEFT);
+    public static final KeyMapping KEY_ROTATE_RIGHT = PixelshotClient.registerKeyMapping(Pixelshot.id("rotate_right"),
+            InputConstants.KEY_RIGHT);
+    public static final KeyMapping KEY_ROTATE_UP = PixelshotClient.registerKeyMapping(Pixelshot.id("rotate_up"),
+            InputConstants.KEY_UP);
+    public static final KeyMapping KEY_ROTATE_DOWN = PixelshotClient.registerKeyMapping(Pixelshot.id("rotate_down"),
+            InputConstants.KEY_DOWN);
+    public static final KeyMapping KEY_SWITCH_PRESET = PixelshotClient.registerUnboundKeyMapping(Pixelshot.id(
             "switch_preset"));
 
     private float zoom;
@@ -89,15 +82,15 @@ public class OrthoViewHandler {
     private CameraType tmpCameraType;
 
     public static void onRegisterKeyMappings(KeyMappingsContext context) {
-        context.registerKeyMapping(KEY_TOGGLE_VIEW, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_OPEN_MENU, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_ZOOM_IN, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_ZOOM_OUT, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_ROTATE_LEFT, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_ROTATE_RIGHT, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_ROTATE_UP, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_ROTATE_DOWN, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_SWITCH_PRESET, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_TOGGLE_VIEW, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_OPEN_MENU, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ZOOM_IN, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ZOOM_OUT, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_LEFT, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_RIGHT, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_UP, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_ROTATE_DOWN, KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_SWITCH_PRESET, KeyMappingActivationHelper.KeyActivationContext.GAME);
     }
 
     public void onStartClientTick(Minecraft minecraft) {
@@ -319,8 +312,8 @@ public class OrthoViewHandler {
                 width,
                 -height,
                 height,
-                !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE, FAR_CLIPPING_DISTANCE
-        );
+                !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE,
+                FAR_CLIPPING_DISTANCE);
     }
 
     public static float roundValue(float value) {

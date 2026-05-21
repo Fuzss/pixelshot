@@ -2,9 +2,9 @@ package fuzs.pixelshot.data.client;
 
 import fuzs.pixelshot.Pixelshot;
 import fuzs.pixelshot.client.gui.screens.AbstractCameraScreen;
-import fuzs.pixelshot.client.handler.ScreenshotHandler;
 import fuzs.pixelshot.client.handler.OrthoOverlayHandler;
 import fuzs.pixelshot.client.handler.OrthoViewHandler;
+import fuzs.pixelshot.client.handler.ScreenshotHandler;
 import fuzs.puzzleslib.api.client.data.v2.AbstractLanguageProvider;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;
 
@@ -16,7 +16,7 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
 
     @Override
     public void addTranslations(TranslationBuilder builder) {
-        builder.addKeyCategory(Pixelshot.MOD_ID, Pixelshot.MOD_NAME);
+        builder.add(Pixelshot.id("main").toLanguageKey("key.category"), Pixelshot.MOD_NAME);
         builder.add(OrthoOverlayHandler.KEY_ZOOM, "Zoom: %s");
         builder.add(OrthoOverlayHandler.KEY_X_ROTATION, "Pitch: %s");
         builder.add(OrthoOverlayHandler.KEY_Y_ROTATION, "Yaw: %s");

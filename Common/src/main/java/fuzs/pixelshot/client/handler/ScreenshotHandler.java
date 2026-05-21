@@ -6,10 +6,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.pixelshot.Pixelshot;
+import fuzs.pixelshot.client.PixelshotClient;
 import fuzs.pixelshot.config.ClientConfig;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyActivationContext;
-import fuzs.puzzleslib.api.client.key.v1.KeyMappingHelper;
+import fuzs.puzzleslib.api.client.screen.v2.KeyMappingActivationHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
@@ -27,16 +27,17 @@ import java.util.function.Consumer;
 public class ScreenshotHandler {
     public static final ScreenshotHandler INSTANCE = new ScreenshotHandler();
     public static final MutableComponent COMPONENT_SCREENSHOT_TAKE = Component.translatable("screenshot.take");
-    public static final KeyMapping KEY_HIGH_RESOLUTION_SCREENSHOT = KeyMappingHelper.registerKeyMapping(Pixelshot.id(
+    public static final KeyMapping KEY_HIGH_RESOLUTION_SCREENSHOT = PixelshotClient.registerKeyMapping(Pixelshot.id(
             "high_resolution_screenshot"), InputConstants.KEY_F9);
-    public static final KeyMapping KEY_PANORAMIC_SCREENSHOT = KeyMappingHelper.registerUnboundKeyMapping(Pixelshot.id(
+    public static final KeyMapping KEY_PANORAMIC_SCREENSHOT = PixelshotClient.registerUnboundKeyMapping(Pixelshot.id(
             "panoramic_screenshot"));
 
     private boolean hugeScreenshotMode;
 
     public static void onRegisterKeyMappings(KeyMappingsContext context) {
-        context.registerKeyMapping(KEY_HIGH_RESOLUTION_SCREENSHOT, KeyActivationContext.GAME);
-        context.registerKeyMapping(KEY_PANORAMIC_SCREENSHOT, KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_HIGH_RESOLUTION_SCREENSHOT,
+                KeyMappingActivationHelper.KeyActivationContext.GAME);
+        context.registerKeyMapping(KEY_PANORAMIC_SCREENSHOT, KeyMappingActivationHelper.KeyActivationContext.GAME);
     }
 
     public boolean isHugeScreenshotMode() {
@@ -73,8 +74,7 @@ public class ScreenshotHandler {
                             windowWidth,
                             windowHeight,
                             imageWidth,
-                            imageHeight
-                    ));
+                            imageHeight));
                 } else {
                     this.grabHugeScreenshot(minecraft, windowWidth, windowHeight, imageWidth, imageHeight, consumer);
                 }
@@ -87,8 +87,7 @@ public class ScreenshotHandler {
                 Component component = this.grabPanoramicScreenshot(minecraft,
                         minecraft.gameDirectory,
                         panoramicResolution,
-                        panoramicResolution
-                );
+                        panoramicResolution);
 
                 minecraft.execute(() -> minecraft.gui.getChat().addMessage(component));
             }
@@ -196,15 +195,13 @@ public class ScreenshotHandler {
                         renderTarget,
                         component -> {
                             // NO-OP
-                        }
-                );
+                        });
             }
 
             Component component = Component.literal(fileName)
                     .withStyle(ChatFormatting.UNDERLINE)
                     .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE,
-                            file.getAbsolutePath()
-                    )));
+                            file.getAbsolutePath())));
             return Component.translatable("screenshot.success", component);
         } catch (Exception exception) {
             Pixelshot.LOGGER.error("Couldn't save image", exception);
