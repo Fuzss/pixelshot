@@ -193,11 +193,11 @@ public class OrthoViewHandler {
 
     public void onComputeCameraAngles(GameRenderer renderer, Camera camera, float partialTicks, MutableFloat pitch, MutableFloat yaw, MutableFloat roll) {
         if (this.isActive) {
-            // just a random event that fires after Camera::setup, and before values set through that are used
-            // note that it's important to set the rotation on the camera itself, so that e.g. particles are rotated correctly
-            // possibly switch back to ComputeCameraAnglesCallback for 1.21 since NeoForge has moved the injection point
             if (!this.followPlayerView) {
+                // Note that it's important to set the rotation on the camera itself, so that e.g., particles are rotated correctly.
                 camera.setRotation(this.getYRot(partialTicks), this.getXRot(partialTicks));
+                pitch.accept(camera.getXRot());
+                yaw.accept(camera.getYRot());
             }
 
             if (this.renderPlayerEntity) {
