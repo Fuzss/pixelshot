@@ -39,11 +39,6 @@ public class ClientConfig implements ConfigCore {
         })
         @Config.IntRange(min = 1)
         public int imageHeight = 2160;
-        @Config(description = {
-                "Alternative high-resolution screenshot rendering method will halt the game while taking the screenshot. Supports higher resolutions than the default rendering.",
-                "Rarely causes an unexpected indefinite client freeze while capturing. Use with caution."
-        })
-        public HugeScreenshotMode screenshotMode = HugeScreenshotMode.RESIZE;
     }
 
     public static class PanoramicScreenshots implements ConfigCore {

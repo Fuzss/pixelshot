@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import fuzs.pixelshot.common.Pixelshot;
 import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
-import fuzs.pixelshot.common.client.helper.LegacyScreenshot;
+import fuzs.pixelshot.common.client.handler.ScreenshotHandler;
 import fuzs.pixelshot.common.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -45,7 +45,7 @@ abstract class MinecraftMixin {
     @Inject(method = "grabPanoramixScreenshot", at = @At(value = "HEAD"))
     public void grabPanoramixScreenshot(File gameDirectory, CallbackInfoReturnable<Component> callback, @Share(
             "screenshot_file") LocalRef<File> screenshotFile) {
-        File file = LegacyScreenshot.getFile(new File(gameDirectory, Screenshot.SCREENSHOT_DIR), "", "");
+        File file = ScreenshotHandler.getFile(new File(gameDirectory, Screenshot.SCREENSHOT_DIR), "", "");
         file.mkdirs();
         screenshotFile.set(file);
     }
