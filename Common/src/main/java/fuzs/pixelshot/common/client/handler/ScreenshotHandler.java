@@ -49,7 +49,7 @@ public class ScreenshotHandler {
         Minecraft minecraft = Minecraft.getInstance();
         // Don't allow this when any screen is open, as it does not render the screen layer anyway.
         // Also means we do not have to deal with the keybindings screen when checking key mapping matches.
-        if (action == InputConstants.PRESS && minecraft.screen == null) {
+        if (action == InputConstants.PRESS && minecraft.gui.screen() == null) {
             if (KeyMappingHelper.isKeyActiveAndMatches(KEY_HIGH_RESOLUTION_SCREENSHOT, keyEvent)) {
                 int originalWidth = minecraft.getWindow().getWidth();
                 int originalHeight = minecraft.getWindow().getHeight();
@@ -62,7 +62,7 @@ public class ScreenshotHandler {
                         imageWidth,
                         imageHeight,
                         (Component component) -> minecraft.execute(() -> {
-                            minecraft.gui.getChat().addClientSystemMessage(component);
+                            minecraft.gui.hud.getChat().addClientSystemMessage(component);
                         }));
                 this.setHugeScreenshotMode(false);
             }
@@ -71,7 +71,7 @@ public class ScreenshotHandler {
                     && !OrthoViewHandler.INSTANCE.isActive()) {
                 Component component = minecraft.grabPanoramixScreenshot(minecraft.gameDirectory);
                 minecraft.execute(() -> {
-                    minecraft.gui.getChat().addClientSystemMessage(component);
+                    minecraft.gui.hud.getChat().addClientSystemMessage(component);
                 });
             }
         }
@@ -87,12 +87,12 @@ public class ScreenshotHandler {
      */
     private void grabHugeScreenshot(Minecraft minecraft, int originalWidth, int originalHeight, int imageWidth, int imageHeight, Consumer<Component> consumer) {
         Window window = minecraft.getWindow();
-        RenderTarget target = minecraft.getMainRenderTarget();
+        RenderTarget target = minecraft.gameRenderer.mainRenderTarget();
         try {
             window.setWidth(imageWidth);
             window.setHeight(imageHeight);
             target.resize(imageWidth, imageHeight);
-            minecraft.gameRenderer.update(DeltaTracker.ONE, true);
+            minecraft.gameRenderer.update(DeltaTracker.ONE);
             minecraft.gameRenderer.extract(DeltaTracker.ONE, true);
             minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
             String fileName = getFile(minecraft.gameDirectory, "huge_", ".png").getName();

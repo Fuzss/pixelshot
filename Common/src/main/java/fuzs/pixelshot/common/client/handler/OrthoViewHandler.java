@@ -18,7 +18,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.environment.FogEnvironment;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
@@ -81,8 +81,8 @@ public class OrthoViewHandler {
     private boolean renderPlayerEntity;
     private boolean freezeControls;
 
-    private boolean tmpHideGui;
-    private CameraType tmpCameraType;
+    private @Nullable CameraType oldCameraType;
+    private boolean restoreHud;
 
     public static void onRegisterKeyMappings(KeyMappingsContext context) {
         context.registerKeyMapping(KEY_TOGGLE_VIEW, KeyActivationContext.GAME);
@@ -99,9 +99,6 @@ public class OrthoViewHandler {
     public void onStartClientTick(Minecraft minecraft) {
         if (this.oldZoom != this.zoom) {
             OrthoOverlayHandler.INSTANCE.setZoomOverlay(this.zoom, this.oldZoom);
-            if (this.oldZoom < this.zoom) {
-                Minecraft.getInstance().levelRenderer.needsUpdate();
-            }
         }
 
         if (this.oldXRot != this.xRot) {
@@ -139,7 +136,7 @@ public class OrthoViewHandler {
 
         while (KEY_OPEN_MENU.consumeClick()) {
             if (this.isActive) {
-                minecraft.setScreen(AbstractCameraScreen.openScreen());
+                minecraft.gui.setScreen(AbstractCameraScreen.openScreen());
             }
         }
 
@@ -183,21 +180,33 @@ public class OrthoViewHandler {
 
     public void onBeforeExtractFrame(Minecraft minecraft) {
         if (this.isActive) {
-            this.tmpHideGui = minecraft.options.hideGui;
-            minecraft.options.hideGui = true;
-            this.tmpCameraType = minecraft.options.getCameraType();
+            this.oldCameraType = minecraft.options.getCameraType();
             minecraft.options.setCameraType(CameraType.FIRST_PERSON);
+            if (!minecraft.gui.hud.isHidden()) {
+                this.restoreHud = true;
+                minecraft.gui.hud.toggle();
+            } else {
+                this.restoreHud = false;
+            }
         }
     }
 
     public void onAfterExtractFrame(Minecraft minecraft) {
         if (this.isActive) {
-            minecraft.options.hideGui = this.tmpHideGui;
-            minecraft.options.setCameraType(this.tmpCameraType);
+            if (this.oldCameraType != null) {
+                minecraft.options.setCameraType(this.oldCameraType);
+                this.oldCameraType = null;
+            }
+
+            if (this.restoreHud && minecraft.gui.hud.isHidden()) {
+                minecraft.gui.hud.toggle();
+            }
+
+            this.restoreHud = false;
         }
     }
 
-    public EventResult onRenderBlockOverlay(LocalPlayer player, PoseStack poseStack, MultiBufferSource bufferSource, BlockState blockState, SpriteGetter sprites) {
+    public EventResult onRenderBlockOverlay(LocalPlayer player, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, BlockState blockState, SpriteGetter sprites) {
         return this.isActive ? EventResult.INTERRUPT : EventResult.PASS;
     }
 

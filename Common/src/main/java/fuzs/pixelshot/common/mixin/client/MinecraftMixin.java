@@ -43,9 +43,9 @@ abstract class MinecraftMixin {
     }
 
     @Inject(method = "grabPanoramixScreenshot", at = @At(value = "HEAD"))
-    public void grabPanoramixScreenshot(File gameDirectory, CallbackInfoReturnable<Component> callback, @Share(
+    public void grabPanoramixScreenshot(File folder, CallbackInfoReturnable<Component> callback, @Share(
             "screenshot_file") LocalRef<File> screenshotFile) {
-        File file = ScreenshotHandler.getFile(new File(gameDirectory, Screenshot.SCREENSHOT_DIR), "", "");
+        File file = ScreenshotHandler.getFile(new File(folder, Screenshot.SCREENSHOT_DIR), "", "");
         file.mkdirs();
         screenshotFile.set(file);
     }
@@ -68,8 +68,8 @@ abstract class MinecraftMixin {
                                    to = @At(value = "INVOKE",
                                             target = "Lnet/minecraft/network/chat/Component;literal(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;")),
                     argsOnly = true)
-    public File grabPanoramixScreenshot(File gameDirectory, @Share("screenshot_file") LocalRef<File> screenshotFile) {
+    public File grabPanoramixScreenshot(File folder, @Share("screenshot_file") LocalRef<File> screenshotFile) {
         // Setting an ordinal on the LOAD injection point does not work, so we need to slice instead.
-        return Objects.requireNonNullElse(screenshotFile.get(), gameDirectory);
+        return Objects.requireNonNullElse(screenshotFile.get(), folder);
     }
 }

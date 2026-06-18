@@ -66,10 +66,10 @@ public abstract class AbstractCameraScreen extends Screen {
             this.onClose();
         }).bounds(this.width / 2 - 100, this.height / 6 + 160, 200, 20).build());
         this.addRenderableWidget(Button.builder(Component.literal("<<"), (Button button) -> {
-            this.minecraft.setScreen(this.type.cycle().factory.apply(this.getTitle(), this.handler));
+            this.minecraft.gui.setScreen(this.type.cycle().factory.apply(this.getTitle(), this.handler));
         }).bounds(this.width / 2 - 136, this.height / 6 - 20, 50, 20).build()).active = !this.type.isLeft;
         this.addRenderableWidget(Button.builder(Component.literal(">>"), (Button button) -> {
-            this.minecraft.setScreen(this.type.cycle().factory.apply(this.getTitle(), this.handler));
+            this.minecraft.gui.setScreen(this.type.cycle().factory.apply(this.getTitle(), this.handler));
         }).bounds(this.width / 2 + 86, this.height / 6 - 20, 50, 20).build()).active = this.type.isLeft;
 
         Collection<AbstractWidget> rotationWidgets = new ArrayList<>();
