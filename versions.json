@@ -6,11 +6,17 @@
     "26.1.x": "maintained",
     "26.2.x": "primary"
   },
-  "properties": {
-    "distributions.curseforge.id": "1369180",
-    "distributions.curseforge.slug": "pixelshot",
-    "distributions.github.slug": "pixelshot",
-    "distributions.modrinth.id": "MUoQGQVU",
-    "distributions.modrinth.slug": "pixelshot"
+  "distributions": {
+    "curseforge": {
+      "id": "1369180",
+      "slug": "pixelshot"
+    },
+    "github": {
+      "slug": "pixelshot"
+    },
+    "modrinth": {
+      "id": "MUoQGQVU",
+      "slug": "pixelshot"
+    }
   }
 }
