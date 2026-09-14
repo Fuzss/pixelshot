@@ -100,6 +100,12 @@ public class OrthoViewHandler {
     public void onStartClientTick(Minecraft minecraft) {
         if (this.oldZoom != this.zoom) {
             OrthoOverlayHandler.INSTANCE.setZoomOverlay(this.zoom, this.oldZoom);
+            if (this.oldZoom < this.zoom) {
+                // Zooming out enlarges the culling frustum, so the sections that just became visible must be
+                // re-culled. LevelRenderer::needsUpdate was removed in 26.2, so invalidate directly.
+                minecraft.levelRenderer.sectionOcclusionGraph().invalidate();
+                minecraft.levelRenderer.cloudRenderer().markForRebuild();
+            }
         }
 
         if (this.oldXRot != this.xRot) {
