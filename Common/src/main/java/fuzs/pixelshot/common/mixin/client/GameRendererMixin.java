@@ -27,12 +27,13 @@ abstract class GameRendererMixin {
                     ordinal = 0)
     public Matrix4f renderLevel(Matrix4f projectionMatrix, DeltaTracker deltaTracker) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
-            return OrthoViewHandler.INSTANCE.createProjectionMatrix(this.minecraft,
+            OrthoViewHandler.INSTANCE.applyProjectionMatrix(projectionMatrix,
+                    this.minecraft,
                     deltaTracker.getGameTimeDeltaPartialTick(true),
                     false);
-        } else {
-            return projectionMatrix;
         }
+
+        return projectionMatrix;
     }
 
     @ModifyArg(method = "renderLevel",

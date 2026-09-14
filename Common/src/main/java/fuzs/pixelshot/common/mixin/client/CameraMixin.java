@@ -20,10 +20,10 @@ abstract class CameraMixin {
     @Final
     private Minecraft minecraft;
 
-    @Inject(method = "createProjectionMatrixForCulling", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "createProjectionMatrixForCulling", at = @At("RETURN"))
     private void createProjectionMatrixForCulling(CallbackInfoReturnable<Matrix4f> callback) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
-            callback.setReturnValue(OrthoViewHandler.INSTANCE.createProjectionMatrix(this.minecraft, 1.0F, true));
+            OrthoViewHandler.INSTANCE.applyProjectionMatrix(callback.getReturnValue(), this.minecraft, 1.0F, true);
         }
     }
 

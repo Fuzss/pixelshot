@@ -334,7 +334,7 @@ public class OrthoViewHandler {
         return Mth.wrapDegrees(partialTick == 1.0F ? this.yRot : Mth.lerp(partialTick, this.oldYRot, this.yRot));
     }
 
-    public Matrix4f createProjectionMatrix(Minecraft minecraft, float partialTick, boolean forFrustum) {
+    public void applyProjectionMatrix(Matrix4f matrix, Minecraft minecraft, float partialTick, boolean forFrustum) {
         // Thanks to the OrthoCamera mod for this trick with offsetting the zoom level for frustum.
         // Otherwise, the game often completely freezes when frustum and projection matrix are not far enough apart.
         // See: https://github.com/DimasKama/OrthoCamera/tree/master
@@ -346,7 +346,7 @@ public class OrthoViewHandler {
         // 26.2 uses reversed depth (the depth buffer is cleared to zero and pipelines test with
         // GREATER_THAN_OR_EQUAL), so mirror vanilla's Projection#getMatrix by swapping near/far and
         // honoring the clip space convention requested by the device.
-        return new Matrix4f().setOrtho(-width,
+        matrix.setOrtho(-width,
                 width,
                 -height,
                 height,
