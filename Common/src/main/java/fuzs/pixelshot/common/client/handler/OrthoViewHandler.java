@@ -334,22 +334,12 @@ public class OrthoViewHandler {
         // See: https://github.com/DimasKama/OrthoCamera/tree/master
         float height = this.getZoom(partialTick) + (forFrustum ? 20.0F : 0.0F);
         float width = height * (minecraft.getWindow().getWidth() / (float) minecraft.getWindow().getHeight());
-        if (forFrustum) {
-            // Only the extracted planes of the culling frustum matter, and the original OpenGL-style matrix
-            // already matches the volume that is actually rendered, so keep it unchanged.
-            return new Matrix4f().setOrtho(-width,
-                    width,
-                    -height,
-                    height,
-                    -FAR_CLIPPING_DISTANCE,
-                    FAR_CLIPPING_DISTANCE);
-        }
+        float zNear = !forFrustum && this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE;
+        float zFar = FAR_CLIPPING_DISTANCE;
 
         // 26.2 uses reversed depth (the depth buffer is cleared to zero and pipelines test with
         // GREATER_THAN_OR_EQUAL), so mirror vanilla's Projection#getMatrix by swapping near/far and
         // honoring the clip space convention requested by the device.
-        float zNear = this.nearClipping ? -NEAR_CLIPPING_DISTANCE : -FAR_CLIPPING_DISTANCE;
-        float zFar = FAR_CLIPPING_DISTANCE;
         return new Matrix4f().setOrtho(-width,
                 width,
                 -height,
