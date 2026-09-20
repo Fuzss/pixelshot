@@ -10,10 +10,11 @@ multiloader {
     mixins {
         clientMixin(
             "CameraMixin",
+            "CloudRendererMixin",
             "FrustumMixin",
             "GameRendererMixin",
-            "LevelRendererMixin",
-            "MinecraftMixin"
+            "MinecraftMixin",
+            "ScreenEffectRendererMixin"
         )
     }
 }

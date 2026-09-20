@@ -3,6 +3,7 @@ package fuzs.pixelshot.common.mixin.client;
 import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
 import fuzs.pixelshot.common.client.handler.ScreenshotHandler;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.joml.Matrix4f;
@@ -28,7 +29,7 @@ abstract class CameraMixin {
     }
 
     @Inject(method = "extractRenderState", at = @At("RETURN"))
-    public void extractRenderState(CameraRenderState cameraState, float cameraEntityPartialTicks, CallbackInfo callback) {
+    public void extractRenderState(CameraRenderState cameraState, DeltaTracker deltaTracker, CallbackInfo callback) {
         // Without this most render buffers are not properly resized
         // Only change this method, not the corresponding field in this instance as it also controls field of view.
         if (ScreenshotHandler.INSTANCE.isHugeScreenshotMode()) {

@@ -2,7 +2,6 @@ package fuzs.pixelshot.common.mixin.client;
 
 import com.mojang.blaze3d.ProjectionType;
 import fuzs.pixelshot.common.client.handler.OrthoViewHandler;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.joml.Matrix4f;
@@ -25,11 +24,11 @@ abstract class GameRendererMixin {
                              target = "Lnet/minecraft/client/renderer/GameRenderer;levelProjectionMatrixBuffer:Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;",
                              opcode = Opcodes.GETFIELD),
                     ordinal = 0)
-    public Matrix4f renderLevel(Matrix4f projectionMatrix, DeltaTracker deltaTracker) {
+    public Matrix4f renderLevel(Matrix4f projectionMatrix) {
         if (OrthoViewHandler.INSTANCE.isActive()) {
             OrthoViewHandler.INSTANCE.applyProjectionMatrix(projectionMatrix,
                     this.minecraft,
-                    deltaTracker.getGameTimeDeltaPartialTick(true),
+                    this.minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true),
                     false);
         }
 
@@ -38,10 +37,10 @@ abstract class GameRendererMixin {
 
     @ModifyArg(method = "renderLevel",
                at = @At(value = "INVOKE",
-                        target = "Lcom/mojang/blaze3d/systems/RenderSystem;setProjectionMatrix(Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lcom/mojang/blaze3d/ProjectionType;)V",
+                        target = "Lcom/mojang/blaze3d/systems/RenderSystem;setProjectionMatrix(Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;Lcom/mojang/blaze3d/ProjectionType;)V",
                         ordinal = 0),
                index = 1)
-    private static ProjectionType renderLevelProjectionType(ProjectionType projectionType) {
+    private static ProjectionType renderLevel(ProjectionType projectionType) {
         return OrthoViewHandler.INSTANCE.isActive() ? ProjectionType.ORTHOGRAPHIC : projectionType;
     }
 }

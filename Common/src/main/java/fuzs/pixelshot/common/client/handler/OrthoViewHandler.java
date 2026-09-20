@@ -2,7 +2,6 @@ package fuzs.pixelshot.common.client.handler;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.pixelshot.common.Pixelshot;
 import fuzs.pixelshot.common.client.gui.screens.AbstractCameraScreen;
 import fuzs.pixelshot.common.client.helper.DirectionHelper;
@@ -10,7 +9,6 @@ import fuzs.pixelshot.common.config.ClientConfig;
 import fuzs.puzzleslib.common.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.common.api.client.key.v1.KeyActivationContext;
 import fuzs.puzzleslib.common.api.client.key.v1.KeyMappingHelper;
-import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
 import fuzs.puzzleslib.common.api.event.v1.data.MutableFloat;
 import fuzs.puzzleslib.common.api.util.v1.CommonHelper;
 import net.minecraft.client.Camera;
@@ -19,13 +17,10 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.environment.FogEnvironment;
-import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.network.Connection;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -211,10 +206,6 @@ public class OrthoViewHandler {
 
             this.restoreHud = false;
         }
-    }
-
-    public EventResult onRenderBlockOverlay(LocalPlayer player, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, BlockState blockState, SpriteGetter sprites) {
-        return this.isActive ? EventResult.INTERRUPT : EventResult.PASS;
     }
 
     public void onSetupFog(Camera camera, float partialTick, @Nullable FogEnvironment fogEnvironment, FogType fogType, FogData fogData) {

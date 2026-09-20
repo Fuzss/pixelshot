@@ -94,7 +94,7 @@ public class ScreenshotHandler {
             target.resize(imageWidth, imageHeight);
             minecraft.gameRenderer.update(DeltaTracker.ONE);
             minecraft.gameRenderer.extract(DeltaTracker.ONE, true);
-            minecraft.gameRenderer.renderLevel(DeltaTracker.ONE);
+            minecraft.gameRenderer.renderLevel();
             String fileName = getFile(minecraft.gameDirectory, "huge_", ".png").getName();
             Screenshot.grab(minecraft.gameDirectory, fileName, target, 1, consumer);
             consumer.accept(COMPONENT_SCREENSHOT_TAKE);

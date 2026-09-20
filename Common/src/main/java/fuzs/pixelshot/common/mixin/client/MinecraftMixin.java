@@ -39,7 +39,8 @@ abstract class MinecraftMixin {
     @ModifyExpressionValue(method = "grabPanoramixScreenshot", at = @At(value = "CONSTANT", args = "intValue=4096"))
     public int grabPanoramixScreenshot(int pixelResolution) {
         // The method applies a downscale factor of 4, so we must multiply by 4.
-        return (int) Math.pow(2.0, Pixelshot.CONFIG.get(ClientConfig.class).panoramicScreenshots.tileResolutionScale) * 4;
+        return (int) Math.pow(2.0, Pixelshot.CONFIG.get(ClientConfig.class).panoramicScreenshots.tileResolutionScale)
+                * 4;
     }
 
     @Inject(method = "grabPanoramixScreenshot", at = @At(value = "HEAD"))
